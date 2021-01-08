@@ -4,12 +4,19 @@ namespace App\Entity;
 
 use App\Repository\TaskRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=TaskRepository::class)
  */
 class Task
 {
+    public function __construct()
+    {
+        $this->createdAt = new \Datetime();
+        $this->isDone = false;
+    }
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -24,11 +31,13 @@ class Task
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Vous devez saisir un titre.")
      */
     private $title;
 
     /**
      * @ORM\Column(type="text")
+     * @Assert\NotBlank(message="Vous devez saisir du contenu.")
      */
     private $content;
 
