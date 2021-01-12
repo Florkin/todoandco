@@ -1,5 +1,4 @@
 @import '~bootstrap';
-
-body {
-    background-color: lightgray;
-}
+@import 'components/bootstrap-overrides';
+@import 'components/variables';
+@import 'components/commons';
