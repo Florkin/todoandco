@@ -69,4 +69,23 @@ class UserController extends AbstractController
 
         return $this->render('user/edit.html.twig', ['form' => $form->createView(), 'user' => $user]);
     }
+
+    /**
+     * @Route("/users/{id}/delete", name="user_delete")
+     * @param User $user
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function delete(User $user, Request $request)
+    {
+        if ($this->isCsrfTokenValid("delete" . $user->getId(), $request->get("_token"))) {
+            $this->entityManager->remove($user);
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'L\'utilisateur a bien été supprimée.');
+            return $this->redirectToRoute('user_index');
+        }
+        $this->addFlash('error', 'Token invalide');
+        return $this->redirectToRoute('user_index', [], 403);
+    }
 }

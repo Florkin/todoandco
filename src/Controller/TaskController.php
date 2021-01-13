@@ -63,7 +63,7 @@ class TaskController extends AbstractController
         $task = new Task();
         if ($this->formHandler->handle($request, $task,TaskType::class)) {
             $this->addFlash('success', 'La tâche a été bien été ajoutée.');
-            return $this->redirectToRoute('task_list');
+            return $this->redirectToRoute('task_index');
         }
 
         return $this->render('task/create.html.twig', ['form' => $this->formHandler->createView()]);
@@ -79,7 +79,7 @@ class TaskController extends AbstractController
     {
         if ($this->formHandler->handle($request, $task,TaskType::class)) {
             $this->addFlash('success', 'La tâche a été bien été modifiée.');
-            return $this->redirectToRoute('task_list');
+            return $this->redirectToRoute('task_index');
         }
 
         return $this->render('task/edit.html.twig', [
@@ -100,7 +100,7 @@ class TaskController extends AbstractController
 
         $this->addFlash('success', sprintf('La tâche %s a bien été marquée comme faite.', $task->getTitle()));
 
-        return $this->redirectToRoute('task_list');
+        return $this->redirectToRoute('task_index');
     }
 
     /**
@@ -115,6 +115,6 @@ class TaskController extends AbstractController
 
         $this->addFlash('success', 'La tâche a bien été supprimée.');
 
-        return $this->redirectToRoute('task_list');
+        return $this->redirectToRoute('task_index');
     }
 }
