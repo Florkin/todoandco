@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Task;
+use App\Form\TaskType;
 use App\Handler\Forms\EntityFormHandler;
 use App\Repository\TaskRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -66,7 +67,7 @@ class TaskController extends AbstractController
             return $this->redirectToRoute('task_index');
         }
 
-        return $this->render('task/create.html.twig', ['form' => $this->formHandler->createView()]);
+        return $this->render('task/new.html.twig', ['form' => $this->formHandler->createView()]);
     }
 
     /**
