@@ -12,6 +12,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @ORM\Table(name="`user`")
  * @UniqueEntity(fields={"email"}, message="There is already an account with this email")
+ * @UniqueEntity(fields={"username"}, message="There is already an account with this username")
  */
 class User implements UserInterface
 {
@@ -46,6 +47,11 @@ class User implements UserInterface
      */
     private $username;
 
+    public function __toString() : string
+    {
+        return $this->username;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -70,7 +76,7 @@ class User implements UserInterface
      */
     public function getUsername(): string
     {
-        return (string) $this->email;
+        return (string) $this->username;
     }
 
     /**

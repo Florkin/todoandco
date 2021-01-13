@@ -31,6 +31,13 @@ class Authenticator extends AbstractFormLoginAuthenticator implements PasswordAu
     private $csrfTokenManager;
     private $passwordEncoder;
 
+    /**
+     * Authenticator constructor.
+     * @param EntityManagerInterface $entityManager
+     * @param UrlGeneratorInterface $urlGenerator
+     * @param CsrfTokenManagerInterface $csrfTokenManager
+     * @param UserPasswordEncoderInterface $passwordEncoder
+     */
     public function __construct(EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder)
     {
         $this->entityManager = $entityManager;
@@ -95,7 +102,6 @@ class Authenticator extends AbstractFormLoginAuthenticator implements PasswordAu
         if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
             return new RedirectResponse($targetPath);
         }
-
         return new RedirectResponse($this->urlGenerator->generate('task_index'));
     }
 

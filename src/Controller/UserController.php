@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Form\RegistrationFormType;
 use App\Form\UserType;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -34,37 +36,12 @@ class UserController extends AbstractController
 
     /**
      * @Route("/users", name="user_index")
+     * @param UserRepository $userRepository
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function index()
+    public function index(UserRepository $userRepository)
     {
-        return $this->render('user/list.html.twig', ['users' => $this->getDoctrine()->getRepository('AppBundle:User')->findAll()]);
-    }
-
-    /**
-     * @Route("/users/new", name="user_new")
-     * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
-     */
-    public function new(Request $request)
-    {
-        $user = new User();
-        $form = $this->createForm(UserType::class, $user);
-
-        $form->handleRequest($request);
-
-        if ($form->isValid()) {
-            $password = $this->passwordEncoder->encodePassword($user, $user->getPassword());
-            $user->setPassword($password);
-
-            $this->entityManager->persist($user);
-            $this->entityManager->flush();
-
-            $this->addFlash('success', "L'utilisateur a bien été ajouté.");
-
-            return $this->redirectToRoute('user_list');
-        }
-
-        return $this->render('user/create.html.twig', ['form' => $form->createView()]);
+        return $this->render('user/index.html.twig', ['users' => $userRepository->findAll()]);
     }
 
     /**
@@ -75,11 +52,11 @@ class UserController extends AbstractController
      */
     public function edit(User $user, Request $request)
     {
-        $form = $this->createForm(UserType::class, $user);
+        $form = $this->createForm(RegistrationFormType::class, $user);
 
         $form->handleRequest($request);
 
-        if ($form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $password = $this->passwordEncoder->encodePassword($user, $user->getPassword());
             $user->setPassword($password);
 
@@ -87,7 +64,7 @@ class UserController extends AbstractController
 
             $this->addFlash('success', "L'utilisateur a bien été modifié");
 
-            return $this->redirectToRoute('user_list');
+            return $this->redirectToRoute('user_index');
         }
 
         return $this->render('user/edit.html.twig', ['form' => $form->createView(), 'user' => $user]);
