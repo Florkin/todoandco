@@ -1,20 +1,44 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello TaskController!{% endblock %}
+{% block header_img %}
+	<img class="slide-image" src="{{ asset('img/todolist_content.jpg') }}" alt="todo list">{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
-
-<div class="example-wrapper">
-    <h1>Hello  ✅</h1>
-
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code><a href="{{ 'C:/laragon/www/todoandco/src/Controller/TaskController.php'|file_link(0) }}">src/Controller/TaskController.php</a></code></li>
-        <li>Your template at <code><a href="{{ 'C:/laragon/www/todoandco/templates/task/index.html.twig'|file_link(0) }}">templates/task/index.html.twig</a></code></li>
-    </ul>
-</div>
+	<a href="{{ path('task_new') }}" class="btn btn-info mt-2">Créer une tâche</a>
+	<div class="row">
+		{% for task in tasks %}
+			<div class="col-12 col-sm-4 col-lg-4 col-md-4">
+				<div class="thumbnail">
+					<div class="caption">
+						<h4 class="pull-right">
+							{% if task.isDone %}
+								<span class="fa fa-check"></span>{% else %}
+								<span class="fa fa-remove"></span>{% endif %}
+						</h4>
+						<h4>
+							<a href="{{ path('task_edit', {'id' : task.id }) }}">{{ task.title }}</a>
+						</h4>
+						<p>{{ task.content }}</p>
+					</div>
+					<div>
+						<form action="{{ path('task_toggle', {'id' : task.id }) }}">
+							<button class="btn btn-success btn-sm pull-right">
+								{% if not task.isDone %}Marquer comme faite{% else %}Marquer non terminée{% endif %}
+							</button>
+						</form>
+						<form action="{{ path('task_delete', {'id' : task.id }) }}">
+							<button class="btn btn-danger btn-sm pull-right">Supprimer</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		{% else %}
+			<div class="col-12 my-2">
+				<div class="d-inline-block alert alert-warning" role="alert">
+					Il n'y a pas encore de tâche enregistrée.
+					<a href="{{ path('task_new') }}" class="btn btn-warning">Créer une tâche</a>
+				</div>
+			</div>
+		{% endfor %}
+	</div>
 {% endblock %}

@@ -62,6 +62,7 @@ class TaskController extends AbstractController
     public function new(Request $request) : Response
     {
         $task = new Task();
+        $task->setDone(false);
         if ($this->formHandler->handle($request, $task,TaskType::class)) {
             $this->addFlash('success', 'La tâche a été bien été ajoutée.');
             return $this->redirectToRoute('task_index');
