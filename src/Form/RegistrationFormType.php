@@ -31,27 +31,7 @@ class RegistrationFormType extends AbstractType
                     ]),
                 ],
             ])
-            ->add('plainPassword', RepeatedType::class, [
-                'label' => 'Mot de passe',
-                'type' => PasswordType::class,
-                'invalid_message' => 'Les deux mots de passe doivent correspondre.',
-                'first_options'  => ['label' => 'Mot de passe'],
-                'second_options' => ['label' => 'Tapez le mot de passe à nouveau'],
-                // instead of being set onto the object directly,
-                // this is read and encoded in the controller
-                'mapped' => false,
-                'constraints' => [
-                    new NotBlank([
-                        'message' => 'Entrez un mot de passe',
-                    ]),
-                    new Length([
-                        'min' => 6,
-                        'minMessage' => 'Votre mot de passe doit faire au moins {{ limit }} caractères',
-                        // max length allowed by Symfony for security reasons
-                        'max' => 4096,
-                    ]),
-                ],
-            ]);
+            ->add('plainPassword', RepeatedType::class, $this->getPasswordFieldOptions());
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -59,5 +39,30 @@ class RegistrationFormType extends AbstractType
         $resolver->setDefaults([
             'data_class' => User::class,
         ]);
+    }
+
+    public function getPasswordFieldOptions()
+    {
+        return [
+            'label' => 'Mot de passe',
+            'type' => PasswordType::class,
+            'invalid_message' => 'Les deux mots de passe doivent correspondre.',
+            'first_options'  => ['label' => 'Mot de passe'],
+            'second_options' => ['label' => 'Tapez le mot de passe à nouveau'],
+            // instead of being set onto the object directly,
+            // this is read and encoded in the controller
+            'mapped' => false,
+            'constraints' => [
+                new NotBlank([
+                    'message' => 'Entrez un mot de passe',
+                ]),
+                new Length([
+                    'min' => 6,
+                    'minMessage' => 'Votre mot de passe doit faire au moins {{ limit }} caractères',
+                    // max length allowed by Symfony for security reasons
+                    'max' => 4096,
+                ]),
+            ],
+        ]
     }
 }
