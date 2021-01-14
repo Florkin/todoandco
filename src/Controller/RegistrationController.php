@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\RegistrationFormType;
+use App\Handler\Forms\RegistrationFormHandler;
 use App\Security\Authenticator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,31 +17,19 @@ class RegistrationController extends AbstractController
 {
     /**
      * @param Request $request
-     * @param UserPasswordEncoderInterface $passwordEncoder
      * @param GuardAuthenticatorHandler $guardAuthenticatorHandler
      * @param Authenticator $authenticator
-     * @Route("/register", name="app_register")
+     * @param RegistrationFormHandler $formHandler
      * @return Response
+     * @Route("/register", name="app_register")
      */
-    public function register(Request $request, UserPasswordEncoderInterface $passwordEncoder, GuardAuthenticatorHandler $guardAuthenticatorHandler, Authenticator $authenticator): Response
+    public function register(Request $request,
+                             GuardAuthenticatorHandler $guardAuthenticatorHandler,
+                             Authenticator $authenticator,
+                             RegistrationFormHandler $formHandler): Response
     {
         $user = new User();
-        $form = $this->createForm(RegistrationFormType::class, $user);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            // encode the plain password
-            $user->setPassword(
-                $passwordEncoder->encodePassword(
-                    $user,
-                    $form->get('plainPassword')->getData()
-                )
-            );
-
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($user);
-            $entityManager->flush();
-
+        if ($formHandler->handle($request, $user, RegistrationFormType::class)) {
             if (!$this->getUser()) {
                 return $guardAuthenticatorHandler->authenticateUserAndHandleSuccess(
                     $user,
@@ -52,10 +41,10 @@ class RegistrationController extends AbstractController
 
             $this->addFlash('success', 'l\'utilisateur a bien été ajouté');
             return $this->redirectToRoute('user_index');
-        }
+        };
 
         return $this->render('registration/register.html.twig', [
-            'registrationForm' => $form->createView(),
+            'registrationForm' => $formHandler->createView(),
         ]);
     }
 }
