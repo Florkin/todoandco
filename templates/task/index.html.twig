@@ -11,25 +11,27 @@
 				<div class="thumbnail">
 					<div class="caption">
 						<h4 class="pull-right">
-							{% if task.isDone %}
-								<span class="fa fa-check"></span>{% else %}
-								<span class="fa fa-remove"></span>{% endif %}
+							<a href="{{ path('task_toggle', {'id' : task.id }) }}">
+								{% if task.isDone %}
+									<span class="fa fa-check text-success"></span>
+								{% else %}
+									<span class="fa fa-remove text-danger"></span>
+								{% endif %}
+							</a>
+							
 						</h4>
 						<h4>
 							<a href="{{ path('task_edit', {'id' : task.id }) }}">{{ task.title }}</a>
 						</h4>
 						<p>{{ task.content }}</p>
 					</div>
+					{% if is_granted('TASK_DELETE', task) %}
 					<div>
-						<form action="{{ path('task_toggle', {'id' : task.id }) }}">
-							<button class="btn btn-success btn-sm pull-right">
-								{% if not task.isDone %}Marquer comme faite{% else %}Marquer non terminée{% endif %}
-							</button>
-						</form>
-						<form action="{{ path('task_delete', {'id' : task.id }) }}">
+						<form onsubmit="return confirm('Cette tâche sera supprimée. Continuer?')" action="{{ path('task_delete', {'id' : task.id }) }}">
 							<button class="btn btn-danger btn-sm pull-right">Supprimer</button>
 						</form>
 					</div>
+					{% endif %}
 				</div>
 			</div>
 		{% else %}
