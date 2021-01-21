@@ -59,7 +59,8 @@ class TaskController extends AbstractController
 
         return $this->render(
             'task/index.html.twig', [
-            'tasks' => $this->taskRepository->findByUserQuery($this->getUser(), $done, $all, $anonymous)
+            'tasks' => $this->taskRepository->findByUserQuery($this->getUser(), $done, $all, $anonymous),
+            'notOnlyPersonnalTasks' => $all || $anonymous
         ]);
     }
 

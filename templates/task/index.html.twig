@@ -4,38 +4,59 @@
 	<img class="slide-image" src="{{ asset('img/todolist_content.jpg') }}" alt="todo list">{% endblock %}
 
 {% block body %}
-	<a href="{{ path('task_new') }}" class="btn btn-info mt-2">Créer une tâche</a>
+	<div class="mt-2">
+		<a href="{{ path('task_new') }}" class="btn btn-primary">Créer une tâche</a>
+		{% if is_granted('ROLE_ADMIN') %}
+			{% if notOnlyPersonnalTasks %}
+				<a href="{{ path('task_index') }}" class="btn btn-outline-info">
+					<span class="fa fa-users-cog"></span>
+					Voir mes tâches
+				</a>
+			{% endif %}
+			<a href="{{ path('task_index', {'all': true}) }}" class="btn btn-outline-warning">
+				<span class="fa fa-users-cog"></span>
+				Voir toutes les tâches
+			</a>
+			<a href="{{ path('task_index', {'anonymous': true}) }}" class="btn btn-outline-warning">
+				<span class="fa fa-users-cog"></span>
+				Voir les tâches anonymes
+			</a>
+		{% endif %}
+	</div>
+	
 	<div class="row">
 		{% for task in tasks %}
 			<div class="col-12 col-sm-4 col-lg-4 col-md-4">
 				<div class="thumbnail">
 					<div class="caption">
-						<h4 class="pull-right">
+						<h4 class="float-right">
 							{% if is_granted('TASK_EDIT', task) %}
 								<a href="{{ path('task_toggle', {'id' : task.id }) }}">
-									<span class="fa fa-{% if task.isDone %}check text-success{% else %}remove text-danger{% endif %}"></span>
+									<span class="fa fa-{% if task.isDone %}check text-success{% else %}times text-danger{% endif %}"></span>
 								</a>
 							{% else %}
-								<span class="fa fa-{% if task.isDone %}check text-success{% else %}remove text-danger{% endif %}"></span>
+								<span class="fa fa-{% if task.isDone %}check text-success{% else %}times text-danger{% endif %}"></span>
 							{% endif %}
 						</h4>
 						<h4>
 							<a href="{{ path('task_edit', {'id' : task.id }) }}">{{ task.title }}</a>
 						</h4>
 						<p>{{ task.content }}</p>
-						<div class="small text-muted">
-							{% if task.user is not null %}
-								{{ task.user }}
-							{% else %}
-								Anonyme
-							{% endif %}
-						</div>
+						{% if notOnlyPersonnalTasks %}
+							<div class="small text-muted">
+								{% if task.user is not null %}
+									{{ task.user }}
+								{% else %}
+									Anonyme
+								{% endif %}
+							</div>
+						{% endif %}
 					</div>
 					{% if is_granted('TASK_DELETE', task) %}
 						<div>
 							<form onsubmit="return confirm('Cette tâche sera supprimée. Continuer?')"
 								  action="{{ path('task_delete', {'id' : task.id }) }}">
-								<button class="btn btn-danger btn-sm pull-right">Supprimer</button>
+								<button class="btn btn-danger btn-sm float-right">Supprimer</button>
 							</form>
 						</div>
 					{% endif %}
