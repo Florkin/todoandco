@@ -44,15 +44,22 @@ class TaskController extends AbstractController
 
     /**
      * @Route("/tasks", name="task_index")
+     * @param Request $request
      * @return Response
-
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $done = $request->get('done');
+        $all = $request->get('all');
+        if (null !== $all && $all) {
+            if (!$this->isGranted("ROLE_ADMIN")){
+                $this->createAccessDeniedException("Vous n'êtes pas autorisés à voir les tâches des autres utilisateurs");
+            }
+        }
         return $this->render(
             'task/index.html.twig', [
-                'tasks' => $this->taskRepository->findAll()
-            ]);
+            'tasks' => $this->taskRepository->findByUserQuery($this->getUser(), $done, $all)
+        ]);
     }
 
     /**
@@ -60,12 +67,12 @@ class TaskController extends AbstractController
      * @param Request $request
      * @return RedirectResponse|Response
      */
-    public function new(Request $request) : Response
+    public function new(Request $request): Response
     {
         $task = new Task();
         $task->setDone(false);
         $task->setUser($this->getUser());
-        if ($this->formHandler->handle($request, $task,TaskType::class)) {
+        if ($this->formHandler->handle($request, $task, TaskType::class)) {
             $this->addFlash('success', 'La tâche a été bien été ajoutée.');
             return $this->redirectToRoute('task_index');
         }
@@ -81,8 +88,8 @@ class TaskController extends AbstractController
      */
     public function edit(Task $task, Request $request)
     {
-        $this->denyAccessUnlessGranted('TASK_EDIT', $task);
-        if ($this->formHandler->handle($request, $task,TaskType::class)) {
+        $this->denyAccessUnlessGranted('TASK_EDIT', $task, "Vous n'avez pas le droit d'éditer cette tâche");
+        if ($this->formHandler->handle($request, $task, TaskType::class)) {
             $this->addFlash('success', 'La tâche a été bien été modifiée.');
             return $this->redirectToRoute('task_index');
         }
@@ -100,7 +107,7 @@ class TaskController extends AbstractController
      */
     public function toggleTaskAction(Task $task)
     {
-        $this->denyAccessUnlessGranted('TASK_EDIT', $task);
+        $this->denyAccessUnlessGranted('TASK_EDIT', $task, "Vous n'avez pas le droit d'éditer cette tâche");
         $task->setDone(!$task->isDone());
         $this->entityManager->flush();
 
@@ -116,7 +123,7 @@ class TaskController extends AbstractController
      */
     public function delete(Task $task)
     {
-        $this->denyAccessUnlessGranted('TASK_DELETE', $task);
+        $this->denyAccessUnlessGranted('TASK_DELETE', $task, "Vous n'avez pas le droit de supprimer cette tâche");
         $this->entityManager->remove($task);
         $this->entityManager->flush();
 
