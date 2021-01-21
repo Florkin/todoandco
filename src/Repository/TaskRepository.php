@@ -3,8 +3,10 @@
 namespace App\Repository;
 
 use App\Entity\Task;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use function Doctrine\ORM\QueryBuilder;
 
 /**
  * @method Task|null find($id, $lockMode = null, $lockVersion = null)
@@ -19,32 +21,41 @@ class TaskRepository extends ServiceEntityRepository
         parent::__construct($registry, Task::class);
     }
 
-    // /**
-    //  * @return Task[] Returns an array of Task objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function findByUserQuery($user, array $options = null)
     {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('t.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+        $query = $this->createQueryBuilder('t')
+            ->andWhere('t.user = ' . $user->getId());
+        foreach ($options as $key => $value) {
+            if (null !== $value) {
+                $query->andWhere('t.' . $key . ' = ' . (int)$value);
+            }
+        }
+        return $query->getQuery()->getResult();
     }
-    */
 
-    /*
-    public function findOneBySomeField($value): ?Task
+    public function findByQuery(array $options = null)
     {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        $query = $this->createQueryBuilder('t')
+            ->andWhere('t.user is NOT NULL');
+
+        foreach ($options as $key => $value) {
+            if (null !== $value) {
+                $query->andWhere('t.' . $key . ' = ' . $value);
+            }
+        }
+        return $query->getQuery()->getResult();
     }
-    */
+
+    public function findAnonymousQuery(array $options)
+    {
+        $query = $this->createQueryBuilder('t')
+            ->andWhere('t.user is NULL');
+
+        foreach ($options as $key => $value) {
+            if (null !== $value) {
+                $query->andWhere('t.' . $key . ' = ' . $value);
+            }
+        }
+        return $query->getQuery()->getResult();
+    }
 }

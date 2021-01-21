@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Builder\UserBuilder;
 use App\Entity\User;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -9,37 +10,38 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 class UserFixtures extends BaseFixtures
 {
     /**
-     * @var UserPasswordEncoderInterface
+     * @var UserBuilder
      */
-    private $encoder;
+    private $builder;
 
     /**
      * UserFixtures constructor.
-     * @param UserPasswordEncoderInterface $encoder
+     * @param UserBuilder $builder
      */
-    public function __construct(UserPasswordEncoderInterface $encoder)
+    public function __construct(UserBuilder $builder)
     {
         Parent::__construct();
-        $this->encoder = $encoder;
+        $this->builder = $builder;
     }
 
     public function load(ObjectManager $manager)
     {
-        $user = new User();
-        $user->setUsername('AdminDemo');
-        $user->setEmail('admin@demo.com');
-        $user->setPassword($this->encoder->encodePassword($user, 'demodemo'));
-        $user->setRoles(['ROLE_ADMIN']);
-        $this->addReference(User::class.'_0', $user);
-        $manager->persist($user);
+        $user = $this->builder->build('UserDemo', 'user@demo.com', 'demodemo');
+        $this->addReference(User::class . '_0', $user);
 
-        for ($i = 1; $i <= Self::NUMBER_OF_USERS; $i++) {
-            $user = new User();
-            $user->setUsername($this->faker->userName);
-            $user->setEmail($this->faker->email);
-            $user->setPassword($this->encoder->encodePassword($user, 'demodemo'));
-            $this->addReference(User::class.'_'.$i, $user);
-            $manager->persist($user);
+        $user = $this->builder->build('AdminDemo', 'admin@demo.com', 'demodemo', ['ROLE_ADMIN']);
+        $this->addReference(User::class . '_1', $user);
+
+        $user = $this->builder->build('SuperAdminDemo', 'superadmin@demo.com', 'demodemo', ['ROLE_SUPER_ADMIN']);
+        // We don't add reference, Super Admin won't have attached Tasks
+
+        for ($i = 2; $i <= Self::NUMBER_OF_USERS; $i++) {
+            $user = $this->builder->build(
+                $this->faker->userName,
+                $this->faker->email,
+                'demodemo'
+            );
+            $this->addReference(User::class . '_' . $i, $user);
         }
         $manager->flush();
     }
