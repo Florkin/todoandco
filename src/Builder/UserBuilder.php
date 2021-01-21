@@ -34,6 +34,9 @@ class UserBuilder
         $user->setUsername($username);
         $user->setEmail($email);
         $user->setPassword($this->encoder->encodePassword($user, 'demodemo'));
+        if ($roles !== null) {
+            $user->setRoles($roles);
+        }
         $this->manager->persist($user);
 
         return $user;

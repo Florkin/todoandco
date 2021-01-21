@@ -21,23 +21,40 @@ class TaskRepository extends ServiceEntityRepository
         parent::__construct($registry, Task::class);
     }
 
-    public function findByUserQuery($user, bool $done = null, bool $all = null, bool $anonymous = null)
+    public function findByUserQuery($user, array $options = null)
     {
-        $query = $this->createQueryBuilder('t');
-
-        if (null !== $anonymous && $anonymous) {
-            $query->andWhere('t.user is NULL');
-            $all = true;
-        } elseif (null !== $anonymous && !$anonymous) {
-            $query->andWhere('t.user is NOT NULL');
+        $query = $this->createQueryBuilder('t')
+            ->andWhere('t.user = ' . $user->getId());
+        foreach ($options as $key => $value) {
+            if (null !== $value) {
+                $query->andWhere('t.' . $key . ' = ' . (int)$value);
+            }
         }
+        return $query->getQuery()->getResult();
+    }
 
-        if (null === $all || !$all) {
-            $query->andWhere('t.user = ' . $user->getId());
+    public function findByQuery(array $options = null)
+    {
+        $query = $this->createQueryBuilder('t')
+            ->andWhere('t.user is NOT NULL');
+
+        foreach ($options as $key => $value) {
+            if (null !== $value) {
+                $query->andWhere('t.' . $key . ' = ' . $value);
+            }
         }
+        return $query->getQuery()->getResult();
+    }
 
-        if (null !== $done) {
-            $query->andWhere('t.done = ' . (int)$done);
+    public function findAnonymousQuery(array $options)
+    {
+        $query = $this->createQueryBuilder('t')
+            ->andWhere('t.user is NULL');
+
+        foreach ($options as $key => $value) {
+            if (null !== $value) {
+                $query->andWhere('t.' . $key . ' = ' . $value);
+            }
         }
         return $query->getQuery()->getResult();
     }

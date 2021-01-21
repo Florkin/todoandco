@@ -49,18 +49,35 @@ class TaskController extends AbstractController
      */
     public function index(Request $request): Response
     {
-        $done = $request->get('done');
-        $anonymous = $request->get('anonymous');
-        $all = $request->get('all');
-        // If request "all" or "anonymous", check if user is ADMIN
-        if (((null !== $all && $all) || (null !== $anonymous && $anonymous)) && !$this->isGranted("ROLE_ADMIN")) {
-            throw $this->createAccessDeniedException("Vous n'êtes pas autorisés à voir les tâches des autres utilisateurs");
-        }
+        $options = [
+            "done" => $request->get('done'),
+        ];
 
         return $this->render(
             'task/index.html.twig', [
-            'tasks' => $this->taskRepository->findByUserQuery($this->getUser(), $done, $all, $anonymous),
-            'notOnlyPersonnalTasks' => $all || $anonymous
+            'tasks' => $this->taskRepository->findByUserQuery($this->getUser(), $options),
+            'showUsername' => false
+        ]);
+    }
+
+    /**
+     * @IsGranted("ROLE_ADMIN")
+     * @Route("/admin/tasks", name="admin_task_index")
+     * @param Request $request
+     * @return Response
+     */
+    public function adminIndex(Request $request): Response
+    {
+        $options = [
+            "done" => $request->get('done'),
+        ];
+        $anonymous = $request->get('anonymous');
+        $result = null !== $anonymous ? $this->taskRepository->findAnonymousQuery($options) : $this->taskRepository->findByQuery($options);
+
+        return $this->render(
+            'task/index.html.twig', [
+            'tasks' => $result,
+            'showUsername' => true,
         ]);
     }
 

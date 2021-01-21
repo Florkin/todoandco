@@ -6,22 +6,6 @@
 {% block body %}
 	<div class="mt-2">
 		<a href="{{ path('task_new') }}" class="btn btn-primary">Créer une tâche</a>
-		{% if is_granted('ROLE_ADMIN') %}
-			{% if notOnlyPersonnalTasks %}
-				<a href="{{ path('task_index') }}" class="btn btn-outline-info">
-					<span class="fa fa-users-cog"></span>
-					Voir mes tâches
-				</a>
-			{% endif %}
-			<a href="{{ path('task_index', {'all': true}) }}" class="btn btn-outline-warning">
-				<span class="fa fa-users-cog"></span>
-				Voir toutes les tâches
-			</a>
-			<a href="{{ path('task_index', {'anonymous': true}) }}" class="btn btn-outline-warning">
-				<span class="fa fa-users-cog"></span>
-				Voir les tâches anonymes
-			</a>
-		{% endif %}
 	</div>
 	
 	<div class="row">
@@ -42,13 +26,9 @@
 							<a href="{{ path('task_edit', {'id' : task.id }) }}">{{ task.title }}</a>
 						</h4>
 						<p>{{ task.content }}</p>
-						{% if notOnlyPersonnalTasks %}
+						{% if showUsername %}
 							<div class="small text-muted">
-								{% if task.user is not null %}
-									{{ task.user }}
-								{% else %}
-									Anonyme
-								{% endif %}
+								{% if task.user is not null %}{{ task.user }}{% else %}Anonyme{% endif %}
 							</div>
 						{% endif %}
 					</div>
