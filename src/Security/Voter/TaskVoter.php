@@ -53,25 +53,32 @@ class TaskVoter extends Voter
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
             case 'TASK_EDIT':
-                if ($this->isAnonymous($subject)) {
-                    return $this->isAdmin();
-                }
-                if ($this->isAdmin() || $this->user->getId() == $subject->getUser()->getId()) {
-                    return true;
-                }
+                return $this->canEdit($subject);
                 break;
             case 'TASK_DELETE':
-                if ($this->isAnonymous($subject)) {
-                    return $this->isAdmin();
-                }
-                if ($this->user->getId() == $subject->getUser()->getId()) {
-                    return true;
-                }
-
+                return $this->canDelete($subject);
                 break;
         }
 
         return false;
+    }
+
+    private function canDelete($subject) {
+        if ($this->isAnonymous($subject)) {
+            return $this->isAdmin();
+        }
+        if ($this->user->getId() == $subject->getUser()->getId()) {
+            return true;
+        }
+    }
+
+    private function canEdit($subject) {
+        if ($this->isAnonymous($subject)) {
+            return $this->isAdmin();
+        }
+        if ($this->isAdmin() || $this->user->getId() == $subject->getUser()->getId()) {
+            return true;
+        }
     }
 
     private function isAdmin()
