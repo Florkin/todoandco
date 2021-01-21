@@ -7,6 +7,7 @@ use App\Form\TaskType;
 use App\Handler\Forms\EntityFormHandler;
 use App\Repository\TaskRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -80,6 +81,7 @@ class TaskController extends AbstractController
      */
     public function edit(Task $task, Request $request)
     {
+        $this->denyAccessUnlessGranted('TASK_EDIT', $task);
         if ($this->formHandler->handle($request, $task,TaskType::class)) {
             $this->addFlash('success', 'La tâche a été bien été modifiée.');
             return $this->redirectToRoute('task_index');
@@ -98,6 +100,7 @@ class TaskController extends AbstractController
      */
     public function toggleTaskAction(Task $task)
     {
+        $this->denyAccessUnlessGranted('TASK_EDIT', $task);
         $task->setDone(!$task->isDone());
         $this->entityManager->flush();
 
@@ -113,6 +116,7 @@ class TaskController extends AbstractController
      */
     public function delete(Task $task)
     {
+        $this->denyAccessUnlessGranted('TASK_DELETE', $task);
         $this->entityManager->remove($task);
         $this->entityManager->flush();
 
