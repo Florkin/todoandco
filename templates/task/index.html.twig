@@ -23,6 +23,13 @@
 							<a href="{{ path('task_edit', {'id' : task.id }) }}">{{ task.title }}</a>
 						</h4>
 						<p>{{ task.content }}</p>
+						<div class="small text-muted">
+							{% if task.user is not null %}
+								{{ task.user }}
+							{% else %}
+								Anonyme
+							{% endif %}
+						</div>
 					</div>
 					{% if is_granted('TASK_DELETE', task) %}
 						<div>

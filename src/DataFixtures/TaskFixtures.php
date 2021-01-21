@@ -14,11 +14,14 @@ class TaskFixtures extends BaseFixtures implements DependentFixtureInterface
     public function load(ObjectManager $manager)
     {
         for ($i = 0; $i < Self::NUMBER_OF_TASKS; $i++) {
+            $isAnonymous = $this->faker->boolean(10);
             $task = new Task();
             $task->setDone($this->faker->boolean(20));
             $task->setTitle($this->faker->text(50));
             $task->setContent($this->faker->text(300));
-            $task->setUser($this->getReference(User::class.'_'.$this->faker->numberBetween(0, Self::NUMBER_OF_USERS)));
+            if (!$isAnonymous) {
+                $task->setUser($this->getReference(User::class.'_'.$this->faker->numberBetween(0, Self::NUMBER_OF_USERS)));
+            }
             $manager->persist($task);
         }
 

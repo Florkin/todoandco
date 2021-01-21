@@ -50,15 +50,16 @@ class TaskController extends AbstractController
     public function index(Request $request): Response
     {
         $done = $request->get('done');
+        $anonymous = $request->get('anonymous');
         $all = $request->get('all');
-        if (null !== $all && $all) {
-            if (!$this->isGranted("ROLE_ADMIN")){
-                $this->createAccessDeniedException("Vous n'êtes pas autorisés à voir les tâches des autres utilisateurs");
-            }
+        // If request "all" or "anonymous", check if user is ADMIN
+        if (((null !== $all && $all) || (null !== $anonymous && $anonymous)) && !$this->isGranted("ROLE_ADMIN")) {
+            throw $this->createAccessDeniedException("Vous n'êtes pas autorisés à voir les tâches des autres utilisateurs");
         }
+
         return $this->render(
             'task/index.html.twig', [
-            'tasks' => $this->taskRepository->findByUserQuery($this->getUser(), $done, $all)
+            'tasks' => $this->taskRepository->findByUserQuery($this->getUser(), $done, $all, $anonymous)
         ]);
     }
 

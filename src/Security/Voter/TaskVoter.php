@@ -53,14 +53,21 @@ class TaskVoter extends Voter
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
             case 'TASK_EDIT':
+                if ($this->isAnonymous($subject)) {
+                    return $this->isAdmin();
+                }
                 if ($this->isAdmin() || $this->user->getId() == $subject->getUser()->getId()) {
                     return true;
                 }
                 break;
             case 'TASK_DELETE':
+                if ($this->isAnonymous($subject)) {
+                    return $this->isAdmin();
+                }
                 if ($this->user->getId() == $subject->getUser()->getId()) {
                     return true;
                 }
+
                 break;
         }
 
@@ -70,5 +77,10 @@ class TaskVoter extends Voter
     private function isAdmin()
     {
         return $this->security->isGranted("ROLE_ADMIN");
+    }
+
+    private function isAnonymous($subject)
+    {
+        return null === $subject->getUser();
     }
 }

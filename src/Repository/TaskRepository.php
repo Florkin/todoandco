@@ -6,6 +6,7 @@ use App\Entity\Task;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use function Doctrine\ORM\QueryBuilder;
 
 /**
  * @method Task|null find($id, $lockMode = null, $lockVersion = null)
@@ -20,12 +21,21 @@ class TaskRepository extends ServiceEntityRepository
         parent::__construct($registry, Task::class);
     }
 
-    public function findByUserQuery($user, bool $done = null, bool $all = null)
+    public function findByUserQuery($user, bool $done = null, bool $all = null, bool $anonymous = null)
     {
         $query = $this->createQueryBuilder('t');
+
+        if (null !== $anonymous && $anonymous) {
+            $query->andWhere('t.user is NULL');
+            $all = true;
+        } elseif (null !== $anonymous && !$anonymous) {
+            $query->andWhere('t.user is NOT NULL');
+        }
+
         if (null === $all || !$all) {
             $query->andWhere('t.user = ' . $user->getId());
         }
+
         if (null !== $done) {
             $query->andWhere('t.done = ' . (int)$done);
         }
