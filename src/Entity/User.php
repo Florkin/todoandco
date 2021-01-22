@@ -59,7 +59,7 @@ class User implements UserInterface
         $this->tasks = new ArrayCollection();
     }
 
-    public function __toString() : string
+    public function __toString(): string
     {
         return $this->username;
     }
@@ -88,7 +88,7 @@ class User implements UserInterface
      */
     public function getUsername(): string
     {
-        return (string) $this->username;
+        return (string)$this->username;
     }
 
     /**
@@ -110,12 +110,30 @@ class User implements UserInterface
         return $this;
     }
 
+    public function addRole(string $role): self
+    {
+        if (!in_array($role, $this->roles)) {
+            $this->roles[] = $role;
+        }
+
+        return $this;
+    }
+
+    public function removeRole(string $role): self
+    {
+        $key = array_search($role, $this->roles);
+        if ($key !== false) {
+            unset($this->roles[$key]);
+        }
+        return $this;
+    }
+
     /**
      * @see UserInterface
      */
     public function getPassword(): string
     {
-        return (string) $this->password;
+        return (string)$this->password;
     }
 
     public function setPassword(string $password): self

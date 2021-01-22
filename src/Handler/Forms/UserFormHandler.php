@@ -6,7 +6,7 @@ use App\Handler\Forms\AbstractFormHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
-class RegistrationFormHandler extends AbstractFormHandler
+class UserFormHandler extends AbstractFormHandler
 {
     /**
      * @var EntityManagerInterface
@@ -41,6 +41,14 @@ class RegistrationFormHandler extends AbstractFormHandler
 
     public function process($data): void
     {
+        if ($this->getForm()->has('admin')) {
+            if ($this->getForm()->get('admin')->getData()){
+                $data->addRole('ROLE_ADMIN');
+            } else {
+                $data->removeRole('ROLE_ADMIN');
+            }
+
+        };
         $data->setPassword(
             $this->passwordEncoder->encodePassword(
                 $data,

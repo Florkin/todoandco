@@ -19,7 +19,9 @@
 <div class="container">
 	<div class="row py-2">
 		<div class="col-12">
-			<a href="{{ path('app_register') }}" class="btn btn-primary">Créer un utilisateur</a>
+			{% if is_granted('ROLE_ADMIN') %}
+				<a href="{{ path('user_new') }}" class="btn btn-primary">Créer un utilisateur</a>
+			{% endif %}
 			
 			{% if app.user %}
 				<a href="{{ path('app_logout') }}" class="float-right btn btn-danger">Se déconnecter</a>
