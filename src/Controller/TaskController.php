@@ -61,7 +61,6 @@ class TaskController extends AbstractController
     }
 
     /**
-     * @IsGranted("ROLE_ADMIN")
      * @Route("/admin/tasks", name="admin_task_index")
      * @param Request $request
      * @return Response
