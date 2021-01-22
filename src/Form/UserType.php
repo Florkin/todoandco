@@ -26,6 +26,10 @@ class UserType extends AbstractType
      * @var AccessDecisionManagerInterface
      */
     private $decisionManager;
+    /**
+     * @var User
+     */
+    private $user;
 
     /**
      * UserType constructor.
@@ -41,9 +45,8 @@ class UserType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         // Check if user to modify is Admin
-        $user = ($options['data']);
-        $token = new UsernamePasswordToken($user, 'none', 'none', $user->getRoles());
-        $isAdmin = $this->decisionManager->decide($token, ['ROLE_ADMIN']);
+        $this->user = ($options['data']);
+
         $builder
             ->add('username', null, [
                 'label' => 'Nom d\'utilisateur'
@@ -52,26 +55,10 @@ class UserType extends AbstractType
             ->add('plainPassword', RepeatedType::class, $this->getPasswordFieldOptions());
 
         if ($this->security->isGranted("ROLE_ADMIN")) {
-            $builder->add('admin', CheckboxType::class, [
-                'mapped' => false,
-                'label' => 'Administrateur',
-                'required' => false,
-                'data' => $isAdmin,
-                'attr' => [
-                    'class' => 'switch'
-                ],
-            ]);
+            $this->addAdminCheckbox($builder);
         }
         if ($this->security->isGranted('IS_ANONYMOUS')) {
-            $builder->add('agreeTerms', CheckboxType::class, [
-                'label' => 'J\'accepte les conditions d\'utilisation',
-                'mapped' => false,
-                'constraints' => [
-                    new IsTrue([
-                        'message' => 'Vous devez accepter les conditions d\'utilisation',
-                    ]),
-                ],
-            ]);
+            $this->addAgreeTermsCheckbox($builder);
         }
     }
 
@@ -82,7 +69,7 @@ class UserType extends AbstractType
         ]);
     }
 
-    public function getPasswordFieldOptions()
+    private function getPasswordFieldOptions()
     {
         return [
             'label' => 'Mot de passe',
@@ -105,5 +92,37 @@ class UserType extends AbstractType
                 ]),
             ],
         ];
+    }
+
+    private function addAdminCheckbox(FormBuilderInterface $builder)
+    {
+        $builder->add('admin', CheckboxType::class, [
+            'mapped' => false,
+            'label' => 'Administrateur',
+            'required' => false,
+            'data' => $this->isAdmin(),
+            'attr' => [
+                'class' => 'switch'
+            ],
+        ]);
+    }
+
+    private function addAgreeTermsCheckbox(FormBuilderInterface $builder)
+    {
+        $builder->add('agreeTerms', CheckboxType::class, [
+            'label' => 'J\'accepte les conditions d\'utilisation',
+            'mapped' => false,
+            'constraints' => [
+                new IsTrue([
+                    'message' => 'Vous devez accepter les conditions d\'utilisation',
+                ]),
+            ],
+        ]);
+    }
+
+    private function isAdmin()
+    {
+        $token = new UsernamePasswordToken($this->user, 'none', 'none', $this->user->getRoles());
+        return $this->decisionManager->decide($token, ['ROLE_ADMIN']);
     }
 }
