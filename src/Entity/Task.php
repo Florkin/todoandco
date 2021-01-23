@@ -40,7 +40,7 @@ class Task
      * @Assert\NotBlank(message="Vous devez saisir du contenu.")
      * @Assert\Length(
      *     min = 5,
-     *     max = 300,
+     *     max = 200,
      *     minMessage = "Votre contenu doit compter au moins {{ limit }} caractères",
      *     maxMessage = "Votre contenu doit compter au maximum {{ limit }} caractères"
      * )

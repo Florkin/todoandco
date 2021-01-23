@@ -1,0 +1,30 @@
+.task-miniature {
+  height: 100%;
+
+  .card-header {
+    min-height: 115px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    @extend .alert-danger;
+  }
+
+  .toggle-done-btn {
+    width: 100%;
+
+    @extend .btn;
+    @extend .btn-sm;
+    @extend .btn-success;
+  }
+
+  &.isDone {
+    .card-header {
+      @extend .alert-success;
+    }
+
+    .toggle-done-btn {
+      @extend .btn-danger;
+    }
+  }
+}

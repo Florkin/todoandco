@@ -1,5 +1,6 @@
-@import '~bootstrap';
+@import 'components/variables';
+@import '~bootstrap/scss/bootstrap';
 @import '~@fortawesome/fontawesome-free/css/all.css';
 @import 'components/bootstrap-overrides';
-@import 'components/variables';
 @import 'components/commons';
+@import 'components/task';

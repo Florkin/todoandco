@@ -4,44 +4,50 @@
 	<img class="img-fluid w-100" src="{{ asset('img/todolist_content.jpg') }}" alt="todo list">{% endblock %}
 
 {% block body %}
-	<div class="mt-2">
-		<a href="{{ path('task_new') }}" class="btn btn-primary">Créer une tâche</a>
+	<div class="row">
+		<div class="col-12 col-sm-6 col-md-4 py-3">
+			<a href="{{ path('task_new') }}" class="btn btn-success w-100">
+				<div class="text-center">
+					<span class="fa fa-plus fa-2x"></span>
+				</div>
+				<div class="text-center text-uppercase">Créer une nouvelle tâche</div>
+			</a>
+		</div>
+		{% if app.request.query.get('done') is null or app.request.query.get('done') == 1 %}
+			<div class="col-12 col-sm-6 col-md-4 py-3">
+				<a href="{{ path('task_index', {'done': false}) }}" class="btn btn-outline-info w-100 h-100">
+					<div class="text-center">
+						<span class="fa fa-list fa-2x"></span>
+					</div>
+					<div class="text-center text-uppercase">Consulter les tâches a faire</div>
+				</a>
+			</div>
+		{% endif %}
+		{% if app.request.query.get('done') is null or app.request.query.get('done') == 0 %}
+			<div class="col-12 col-sm-6 col-md-4 py-3">
+				<a href="{{ path('task_index', {'done': true}) }}" class="btn btn-outline-secondary w-100 h-100">
+					<div class="text-center">
+						<span class="fa fa-check fa-2x"></span>
+					</div>
+					<div class="text-center text-uppercase">Consulter les tâches terminées</div>
+				</a>
+			</div>
+		{% endif %}
+		{% if app.request.query.get('done') is not null %}
+			<div class="col-12 col-sm-6 col-md-4 py-3">
+				<a href="{{ path('task_index') }}" class="btn btn-outline-success w-100 h-100">
+					<div class="text-center">
+						<span class="fa fa-tasks fa-2x"></span>
+					</div>
+					<div class="text-center text-uppercase">Voir toutes les tâches</div>
+				</a>
+			</div>
+		{% endif %}
 	</div>
 	
 	<div class="row">
 		{% for task in tasks %}
-			<div class="col-12 col-sm-4 col-lg-4 col-md-4">
-				<div class="thumbnail">
-					<div class="caption">
-						<h4 class="float-right">
-							{% if is_granted('TASK_EDIT', task) %}
-								<a href="{{ path('task_toggle', {'id' : task.id }) }}">
-									<span class="fa fa-{% if task.isDone %}check text-success{% else %}times text-danger{% endif %}"></span>
-								</a>
-							{% else %}
-								<span class="fa fa-{% if task.isDone %}check text-success{% else %}times text-danger{% endif %}"></span>
-							{% endif %}
-						</h4>
-						<h4>
-							<a href="{{ path('task_edit', {'id' : task.id }) }}">{{ task.title }}</a>
-						</h4>
-						<p>{{ task.content }}</p>
-						{% if showUsername %}
-							<div class="small text-muted">
-								{% if task.user is not null %}{{ task.user }}{% else %}Anonyme{% endif %}
-							</div>
-						{% endif %}
-					</div>
-					{% if is_granted('TASK_DELETE', task) %}
-						<div>
-							<form onsubmit="return confirm('Cette tâche sera supprimée. Continuer?')"
-								  action="{{ path('task_delete', {'id' : task.id }) }}">
-								<button class="btn btn-danger btn-sm float-right">Supprimer</button>
-							</form>
-						</div>
-					{% endif %}
-				</div>
-			</div>
+			{% include 'task/_miniature.html.twig' %}
 		{% else %}
 			<div class="col-12 my-2">
 				<div class="d-inline-block alert alert-warning" role="alert">

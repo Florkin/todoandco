@@ -1,15 +1,34 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}
-	<h1>Bienvenue sur Todo List, l'application vous permettant de gérer l'ensemble de vos tâches sans effort !</h1>
+{% block header_title %}
+	<h1 class="text-center py-3">Bienvenue sur Todo List, l'application vous permettant de gérer l'ensemble de vos tâches sans effort !</h1>
 {% endblock %}
 
 {% block body %}
-	<div class="row py-2">
-		<div class="col-12">
-			<a href="{{ path('task_new') }}" class="btn btn-success">Créer une nouvelle tâche</a>
-			<a href="{{ path('task_index', {'done': false}) }}" class="btn btn-info">Consulter la liste des tâches à faire</a>
-			<a href="{{ path('task_index', {'done': true}) }}" class="btn btn-secondary">Consulter la liste des tâches terminées</a>
+	<div class="row py-3">
+		<div class="col-12 col-sm-4 col-md-4 my-2 my-sm-0">
+			<a href="{{ path('task_new') }}" class="btn btn-outline-success w-100 h-100">
+				<div class="text-center">
+					<span class="fa fa-plus fa-2x"></span>
+				</div>
+				<div class="text-center text-uppercase">Créer une nouvelle tâche</div>
+			</a>
+		</div>
+		<div class="col-12 col-sm-4 col-md-4 my-2 my-sm-0">
+			<a href="{{ path('task_index', {'done': false}) }}" class="btn btn-outline-info w-100 h-100">
+				<div class="text-center">
+					<span class="fa fa-list fa-2x"></span>
+				</div>
+				<div class="text-center text-uppercase">Consulter les tâches a faire</div>
+			</a>
+		</div>
+		<div class="col-12 col-sm-4 col-md-4 my-2 my-sm-0">
+			<a href="{{ path('task_index', {'done': true}) }}" class="btn btn-outline-secondary w-100 h-100">
+				<div class="text-center">
+					<span class="fa fa-check fa-2x"></span>
+				</div>
+				<div class="text-center text-uppercase">Consulter les tâches terminées</div>
+			</a>
 		</div>
 	</div>
 {% endblock %}

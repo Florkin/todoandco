@@ -1,4 +1,5 @@
-// Variables
+@import "~bootstrap/scss/functions";
+
 //
 // Variables should follow the `$component-state-property-size` formula for
 // consistent naming. Ex: $nav-link-disabled-color and $modal-content-box-shadow-xs.
@@ -113,9 +114,9 @@ $escaped-characters: (
 // Quickly modify global styling by enabling or disabling optional features.
 
 $enable-caret:                                true !default;
-$enable-rounded:                              true !default;
-$enable-shadows:                              false !default;
-$enable-gradients:                            false !default;
+$enable-rounded:                              false;
+$enable-shadows:                              false;
+$enable-gradients:                            false;
 $enable-transitions:                          true !default;
 $enable-prefers-reduced-motion-media-query:   true !default;
 $enable-hover-media-query:                    false !default; // Deprecated, no longer affects any compiled CSS
@@ -165,7 +166,7 @@ $sizes: map-merge(
 //
 // Settings for the `<body>` element.
 
-$body-bg:                   $white !default;
+$body-bg:                   $gray-100;
 $body-color:                $gray-900 !default;
 
 
