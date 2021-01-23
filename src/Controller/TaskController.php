@@ -121,16 +121,22 @@ class TaskController extends AbstractController
     /**
      * @Route("/tasks/{id}/toggle", name="task_toggle")
      * @param Task $task
-     * @return RedirectResponse
+     * @param Request $request
+     * @return RedirectResponse|Response
      */
-    public function toggleTaskAction(Task $task)
+    public function toggleTaskAction(Task $task, Request $request)
     {
         $this->denyAccessUnlessGranted('TASK_EDIT', $task, "Vous n'avez pas le droit d'éditer cette tâche");
         $task->setDone(!$task->isDone());
         $this->entityManager->flush();
 
-        $this->addFlash('success', sprintf('La tâche %s a bien été marquée comme faite.', $task->getTitle()));
+        if ($request->isXmlHttpRequest()) {
+            return $this->render('task/_miniature.html.twig', [
+                'task' => $task
+            ]);
+        }
 
+        $this->addFlash('success', sprintf('La tâche %s a bien été marquée comme faite.', $task->getTitle()));
         return $this->redirectToRoute('task_index');
     }
 

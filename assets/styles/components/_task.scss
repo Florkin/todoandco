@@ -10,21 +10,25 @@
     @extend .alert-danger;
   }
 
+  .card-footer {
+    padding: 0;
+  }
+
   .toggle-done-btn {
     width: 100%;
 
     @extend .btn;
-    @extend .btn-sm;
-    @extend .btn-success;
+  }
+
+  &.todo {
+    .toggle-done-btn {
+      @extend .btn-success;
+    }
   }
 
   &.isDone {
     .card-header {
       @extend .alert-success;
-    }
-
-    .toggle-done-btn {
-      @extend .btn-danger;
     }
   }
 }

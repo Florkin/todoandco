@@ -47,7 +47,9 @@
 	
 	<div class="row">
 		{% for task in tasks %}
-			{% include 'task/_miniature.html.twig' %}
+			<div class="col-12 col-sm-6 col-md-4 mb-4">
+				{% include 'task/_miniature.html.twig' %}
+			</div>
 		{% else %}
 			<div class="col-12 my-2">
 				<div class="d-inline-block alert alert-warning" role="alert">
@@ -57,4 +59,8 @@
 			</div>
 		{% endfor %}
 	</div>
+{% endblock %}
+
+{% block scripts %}
+	{{ encore_entry_script_tags('ajaxToggleTask') }}
 {% endblock %}
