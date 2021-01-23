@@ -32,9 +32,6 @@ class UserFixtures extends BaseFixtures
         $user = $this->builder->build('AdminDemo', 'admin@demo.com', 'demodemo', ['ROLE_ADMIN']);
         $this->addReference(User::class . '_1', $user);
 
-        $user = $this->builder->build('SuperAdminDemo', 'superadmin@demo.com', 'demodemo', ['ROLE_SUPER_ADMIN']);
-        // We don't add reference, Super Admin won't have attached Tasks
-
         for ($i = 2; $i <= Self::NUMBER_OF_USERS; $i++) {
             $user = $this->builder->build(
                 $this->faker->userName,

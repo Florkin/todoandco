@@ -17,22 +17,6 @@
 {% endblock %}
 <!-- Page Content -->
 <div class="container">
-	<div class="row py-2">
-		<div class="col-12">
-			{% if is_granted('ROLE_ADMIN') %}
-				<a href="{{ path('user_new') }}" class="btn btn-primary">Créer un utilisateur</a>
-			{% endif %}
-			
-			{% if app.user %}
-				<a href="{{ path('app_logout') }}" class="float-right btn btn-danger">Se déconnecter</a>
-			{% endif %}
-			
-			{% if not app.user and 'login' != app.request.attributes.get('_route') %}
-				<a href="{{ path('app_login') }}" class="btn btn-success">Se connecter</a>
-			{% endif %}
-		</div>
-	</div>
-	
 	<div class="row">
 		<div class="col-12">
 			{% for flash_message in app.session.flashBag.get('success') %}
@@ -49,13 +33,13 @@
 			
 			{% block header_title %}{% endblock %}
 			{% block header_img %}
-				<img class="img-fluid" src="{{ asset('img/todolist_homepage.jpg') }}" alt="todo list">
+				<img class="img-fluid w-100" src="{{ asset('img/todolist_homepage.jpg') }}" alt="todo list">
 			{% endblock %}
 		</div>
 	</div>
 	
 	<div class="row">
-		<div class="col-12">
+		<div class="col-12 py-3">
 			{% block body %}{% endblock %}
 		</div>
 	</div>
