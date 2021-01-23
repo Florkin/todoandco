@@ -196,4 +196,18 @@ class User implements UserInterface
 
         return $this;
     }
+
+    public function getDisplayRole(): array
+    {
+        if (in_array('ROLE_ADMIN', $this->getRoles())) {
+            return [
+                'name' => 'Administrateur',
+                'color' => 'danger'
+            ];
+        };
+        return [
+            'name' => 'Utilisateur',
+            'color' => 'success'
+        ];
+    }
 }
