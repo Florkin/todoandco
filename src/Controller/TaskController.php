@@ -5,9 +5,9 @@ namespace App\Controller;
 use App\Entity\Task;
 use App\Form\TaskType;
 use App\Handler\Forms\EntityFormHandler;
+use App\Handler\PaginatorHandler;
 use App\Repository\TaskRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -29,18 +29,27 @@ class TaskController extends AbstractController
      * @var EntityManagerInterface
      */
     private $entityManager;
+    /**
+     * @var PaginatorHandler
+     */
+    private $pager;
 
     /**
      * TaskController constructor.
      * @param TaskRepository $taskRepository
      * @param EntityFormHandler $formHandler
      * @param EntityManagerInterface $entityManager
+     * @param PaginatorHandler $pager
      */
-    public function __construct(TaskRepository $taskRepository, EntityFormHandler $formHandler, EntityManagerInterface $entityManager)
+    public function __construct(TaskRepository $taskRepository,
+                                EntityFormHandler $formHandler,
+                                EntityManagerInterface $entityManager,
+                                PaginatorHandler $pager)
     {
         $this->taskRepository = $taskRepository;
         $this->formHandler = $formHandler;
         $this->entityManager = $entityManager;
+        $this->pager = $pager;
     }
 
     /**
@@ -54,9 +63,11 @@ class TaskController extends AbstractController
             "done" => $request->get('done'),
         ];
 
+        $query = $this->taskRepository->findByUserQuery($this->getUser(), $options);
+
         return $this->render(
             'task/index.html.twig', [
-            'tasks' => $this->taskRepository->findByUserQuery($this->getUser(), $options),
+            'tasks' => $this->pager->paginate($request, $query),
             'showUsername' => false
         ]);
     }
@@ -72,7 +83,8 @@ class TaskController extends AbstractController
             "done" => $request->get('done'),
         ];
         $anonymous = $request->get('anonymous');
-        $result = null !== $anonymous ? $this->taskRepository->findAnonymousQuery($options) : $this->taskRepository->findByQuery($options);
+        $query = null !== $anonymous ? $this->taskRepository->findAnonymousQuery($options) : $this->taskRepository->findByQuery($options);
+        $result = $this->pager->paginate($request, $query);
 
         return $this->render(
             'admin/task/index.html.twig', [

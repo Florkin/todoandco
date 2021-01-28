@@ -24,36 +24,41 @@ class TaskRepository extends ServiceEntityRepository
     public function findByUserQuery($user, array $options = null)
     {
         $query = $this->createQueryBuilder('t')
-            ->andWhere('t.user = ' . $user->getId());
+            ->andWhere('t.user = ' . $user->getId())
+            ->orderBy('t.createdAt', 'DESC');
+
         foreach ($options as $key => $value) {
             if (null !== $value) {
                 $query->andWhere('t.' . $key . ' = ' . (int)$value);
             }
         }
-        return $query->getQuery()->getResult();
+        return $query->getQuery();
     }
 
     public function findByQuery(array $options = null)
     {
-        $query = $this->createQueryBuilder('t');
+        $query = $this->createQueryBuilder('t')
+            ->orderBy('t.createdAt', 'DESC');
         foreach ($options as $key => $value) {
             if (null !== $value) {
                 $query->andWhere('t.' . $key . ' = ' . $value);
             }
         }
-        return $query->getQuery()->getResult();
+        return $query->getQuery();
     }
 
     public function findAnonymousQuery(array $options)
     {
         $query = $this->createQueryBuilder('t')
-            ->andWhere('t.user is NULL');
+            ->andWhere('t.user is NULL')
+            ->orderBy('t.createdAt', 'DESC');
+
 
         foreach ($options as $key => $value) {
             if (null !== $value) {
                 $query->andWhere('t.' . $key . ' = ' . $value);
             }
         }
-        return $query->getQuery()->getResult();
+        return $query->getQuery();
     }
 }

@@ -17,6 +17,7 @@ class TaskFixtures extends BaseFixtures implements DependentFixtureInterface
             $task = new Task();
             $task->setDone($this->faker->boolean(20));
             $task->setTitle($this->faker->text(50));
+            $task->setCreatedAt($this->faker->dateTimeBetween("-2 years", "now"));
             $task->setContent($this->faker->text(200));
             if (!$isAnonymous) {
                 $task->setUser($this->getReference(User::class.'_'.$this->faker->numberBetween(0, Self::NUMBER_OF_USERS)));

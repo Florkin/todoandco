@@ -34,4 +34,33 @@
   }
 }
 
+.page-item{
+  .page-link {
+    position: relative;
+    display: block;
+    padding: 0.5rem 0.75rem;
+    margin-left: -1px;
+    line-height: 1.25;
+    color: $success;
+    border: none;
+    background: none;
+  }
+
+  &.active {
+    .page-link {
+      z-index: 3;
+      color: $white;
+      background-color: $success;
+      border-color: $success;
+    }
+  }
+
+  &.disabled {
+    .page-link {
+      background: none;
+      opacity: 0.5;
+    }
+  }
+}
+
 

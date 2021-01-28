@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Handler\Forms\UserFormHandler;
+use App\Handler\PaginatorHandler;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -24,26 +25,34 @@ class UserController extends AbstractController
      * @var PasswordEncoderInterface
      */
     private $passwordEncoder;
+    /**
+     * @var PaginatorHandler
+     */
+    private $pager;
 
     /**
      * UserController constructor.
      * @param EntityManagerInterface $entityManager
      * @param UserPasswordEncoderInterface $passwordEncoder
+     * @param PaginatorHandler $pager
      */
-    public function __construct(EntityManagerInterface $entityManager, UserPasswordEncoderInterface $passwordEncoder)
+    public function __construct(EntityManagerInterface $entityManager, UserPasswordEncoderInterface $passwordEncoder, PaginatorHandler $pager)
     {
         $this->entityManager = $entityManager;
         $this->passwordEncoder = $passwordEncoder;
+        $this->pager = $pager;
     }
 
     /**
      * @Route("/admin/users", name="user_index")
      * @param UserRepository $userRepository
+     * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function index(UserRepository $userRepository)
+    public function index(UserRepository $userRepository, Request $request)
     {
-        return $this->render('user/index.html.twig', ['users' => $userRepository->findAll()]);
+        $query = $userRepository->findAllQuery();
+        return $this->render('user/index.html.twig', ['users' => $this->pager->paginate($request, $query)]);
     }
 
     /**

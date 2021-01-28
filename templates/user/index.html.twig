@@ -18,7 +18,7 @@
 	{% else %}
 		<div class="row">
 			<div class="col-12">
-				<table class="table">
+				<table class="table responsive">
 					<thead>
 					<tr>
 						<th>Nom d'utilisateur</th>
@@ -43,6 +43,9 @@
 					{% endfor %}
 					</tbody>
 				</table>
+			</div>
+			<div class="col-12">
+				{{ knp_pagination_render(users) }}
 			</div>
 		</div>
 	{% endif %}
