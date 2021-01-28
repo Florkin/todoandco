@@ -27,11 +27,7 @@ class TaskRepository extends ServiceEntityRepository
             ->andWhere('t.user = ' . $user->getId())
             ->orderBy('t.createdAt', 'DESC');
 
-        foreach ($options as $key => $value) {
-            if (null !== $value) {
-                $query->andWhere('t.' . $key . ' = ' . (int)$value);
-            }
-        }
+        $this->addOptions($options,$query);
         return $query->getQuery();
     }
 
@@ -39,11 +35,8 @@ class TaskRepository extends ServiceEntityRepository
     {
         $query = $this->createQueryBuilder('t')
             ->orderBy('t.createdAt', 'DESC');
-        foreach ($options as $key => $value) {
-            if (null !== $value) {
-                $query->andWhere('t.' . $key . ' = ' . $value);
-            }
-        }
+
+        $this->addOptions($options,$query);
         return $query->getQuery();
     }
 
@@ -53,12 +46,15 @@ class TaskRepository extends ServiceEntityRepository
             ->andWhere('t.user is NULL')
             ->orderBy('t.createdAt', 'DESC');
 
+        $this->addOptions($options,$query);
+        return $query->getQuery();
+    }
 
+    private function addOptions($options, $query) {
         foreach ($options as $key => $value) {
             if (null !== $value) {
                 $query->andWhere('t.' . $key . ' = ' . $value);
             }
         }
-        return $query->getQuery();
     }
 }

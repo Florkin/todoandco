@@ -34,7 +34,10 @@
 							<td>{{ user.email }}</td>
 							<td><span class="text-{{ user.displayRole.color }}">{{ user.displayRole.name }}</span></td>
 							<td>
-								<a href="{{ path('user_edit', {'id' : user.id}) }}" class="btn btn-success btn-sm">
+								<a href="{{ path('admin_task_index', {'user' : user.id}) }}" class="btn btn-success btn-sm">
+									<span class="fa fa-tasks"></span>
+								</a>
+								<a href="{{ path('user_edit', {'id' : user.id}) }}" class="btn btn-warning btn-sm">
 									<span class="fa fa-edit"></span>
 								</a>
 								{% include 'user/_delete_form.html.twig' %}
