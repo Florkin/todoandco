@@ -22,6 +22,7 @@ Encore
      */
     .addEntry('app', './assets/app.js')
     .addEntry('ajaxToggleTask', './assets/ajaxToggleTask.js')
+    .addEntry('ajaxSubmit', './assets/ajaxSubmit.js')
 
     // enables the Symfony UX Stimulus bridge (used in assets/bootstrap.js)
     // .enableStimulusBridge('./assets/controllers.json')

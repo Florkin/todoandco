@@ -1,0 +1,24 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <span class="navbar-brand"><span class="d-none d-lg-inline fa fa-cogs"></span><b> ADMIN</b></span>
+        <button class="navbar-toggler text-light" type="button" data-toggle="collapse"
+                data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="fa fa-cogs"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('user_index') }}">Liste des utilisateurs</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('user_new') }}">Créer un utilisateur</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('admin_task_index') }}">Gestion des tâches</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

@@ -12,6 +12,9 @@
 	{% block stylesheets %}{% endblock %}
 </head>
 <body>
+{% if is_granted('ROLE_ADMIN') %}
+	{% include 'admin/admin-bar.html.twig' %}
+{% endif %}
 {% block navbar %}
 	{% include 'navbar/navbar.html.twig' %}
 {% endblock %}

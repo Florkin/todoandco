@@ -35,9 +35,7 @@ class TaskRepository extends ServiceEntityRepository
 
     public function findByQuery(array $options = null)
     {
-        $query = $this->createQueryBuilder('t')
-            ->andWhere('t.user is NOT NULL');
-
+        $query = $this->createQueryBuilder('t');
         foreach ($options as $key => $value) {
             if (null !== $value) {
                 $query->andWhere('t.' . $key . ' = ' . $value);

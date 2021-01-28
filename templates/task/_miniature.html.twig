@@ -1,20 +1,45 @@
-<div class="card task-miniature {% if task.isDone %}isDone{% else %}todo{% endif %}">
-	<div class="card-header">
-		<h4>{{ task.title }}</h4>
-		<small class="text-muted">Ajoutée le {{ task.createdAt|format_date('long', locale='fr') }}</small>
-	</div>
-	<div class="card-body">
-		{{ task.content }}
-	</div>
-	<div class="card-footer d-flex justify-content-end bg-white border-0">
-		<a href="{{ path('task_toggle', {'id': task.id}) }}" class="toggle-done-btn">
-			<span class="fa fa-{% if task.isDone %}times{% else %}check{% endif %}"></span>
-			&nbsp;Marquer comme{% if task.isDone %} non{% endif %} terminée
-		</a>
-	</div>
-	<div class="loader d-none">
-		<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
-	</div>
+<div class="card task-miniature{% if task.isDone %} isDone{% else %} todo{% endif %}">
+    <div class="card-header{% if displayUsername is defined and displayUsername %} with-username{% endif %}">
+        <h4>{{ task.title }}</h4>
+        <small class="text-muted">Ajoutée le {{ task.createdAt|format_date('long', locale='fr') }}</small>
+        {% if displayUsername is defined and displayUsername %}
+            {% if task.user is not null %}
+                <small class="text-muted">par <a
+                            href="{{ path('user_edit', {'id': task.user.id}) }}">{{ task.user }}</a></small>
+            {% else %}
+                <div class="mt-2 badge badge-danger">Anonyme</div>
+            {% endif %}
+        {% endif %}
+    </div>
+    <div class="card-body">
+        {{ task.content }}
+    </div>
+    <div class="card-actions">
+        <div class="d-flex justify-content-end">
+            {% if is_granted('TASK_DELETE', task) %}
+                {% include 'task/_delete_form.html.twig' %}
+            {% endif %}
+            {% if is_granted('TASK_EDIT', task) %}
+                <a href="{{ path('task_edit', {'id': task.id}) }}" class="btn text-warning"><span
+                            class="fa fa-edit"></span></a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-footer d-flex justify-content-end bg-white border-0">
+        <a href="{{ path('task_toggle', {'id': task.id}) }}" class="toggle-done-btn">
+            <span class="fa fa-{% if task.isDone %}times{% else %}check{% endif %}"></span>
+            &nbsp;Marquer comme{% if task.isDone %} non{% endif %} terminée
+        </a>
+    </div>
+
+    <div class="loader d-none">
+        <div class="lds-ellipsis">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
 </div>
 
 

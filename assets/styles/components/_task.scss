@@ -1,3 +1,5 @@
+@import "variables";
+
 .task-miniature {
   height: 100%;
 
@@ -7,11 +9,15 @@
     flex-direction: column;
     justify-content: space-between;
 
-    @extend .alert-danger;
+    @extend .alert-warning;
+
+    &.with-username {
+      min-height: 135px;
+    }
   }
 
-  .card-footer {
-    padding: 0;
+  .card-actions {
+    padding: 0 $card-spacer-x;
   }
 
   .toggle-done-btn {
@@ -22,13 +28,17 @@
 
   &.todo {
     .toggle-done-btn {
-      @extend .btn-success;
+      @extend .btn-outline-warning;
     }
   }
 
   &.isDone {
     .card-header {
       @extend .alert-success;
+    }
+
+    .toggle-done-btn {
+      @extend .text-danger;
     }
   }
 }
