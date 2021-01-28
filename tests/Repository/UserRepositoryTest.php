@@ -33,7 +33,7 @@ class UserRepositoryTest extends KernelTestCase
     public function testFindAllQueryReturnUsers()
     {
         self::bootKernel();
-        $users = self::$container->get(UserRepository::class)->findAllQuery()->getResult()
+        $users = self::$container->get(UserRepository::class)->findAllQuery()->getResult();
         $testUser = true;
         foreach ($users as $user) {
             if (!$user instanceof User) {

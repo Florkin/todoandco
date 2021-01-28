@@ -27,7 +27,7 @@ class TaskRepository extends ServiceEntityRepository
             ->andWhere('t.user = ' . $user->getId())
             ->orderBy('t.createdAt', 'DESC');
 
-        $this->addOptions($options,$query);
+        $this->addOptions($options, $query);
         return $query->getQuery();
     }
 
@@ -36,24 +36,27 @@ class TaskRepository extends ServiceEntityRepository
         $query = $this->createQueryBuilder('t')
             ->orderBy('t.createdAt', 'DESC');
 
-        $this->addOptions($options,$query);
+        $this->addOptions($options, $query);
         return $query->getQuery();
     }
 
-    public function findAnonymousQuery(array $options)
+    public function findAnonymousQuery(array $options = null)
     {
         $query = $this->createQueryBuilder('t')
             ->andWhere('t.user is NULL')
             ->orderBy('t.createdAt', 'DESC');
 
-        $this->addOptions($options,$query);
+        $this->addOptions($options, $query);
         return $query->getQuery();
     }
 
-    private function addOptions($options, $query) {
-        foreach ($options as $key => $value) {
-            if (null !== $value) {
-                $query->andWhere('t.' . $key . ' = ' . $value);
+    private function addOptions($options, $query)
+    {
+        if (null !== $options) {
+            foreach ($options as $key => $value) {
+                if (null !== $value) {
+                    $query->andWhere('t.' . $key . ' = ' . $value);
+                }
             }
         }
     }
