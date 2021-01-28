@@ -9,6 +9,7 @@ use App\Repository\TaskRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -143,13 +144,18 @@ class TaskController extends AbstractController
     /**
      * @Route("/tasks/{id}/delete", name="task_delete")
      * @param Task $task
-     * @return RedirectResponse
+     * @param Request $request
+     * @return RedirectResponse|JsonResponse
      */
-    public function delete(Task $task)
+    public function delete(Task $task, Request $request)
     {
         $this->denyAccessUnlessGranted('TASK_DELETE', $task, "Vous n'avez pas le droit de supprimer cette tâche");
         $this->entityManager->remove($task);
         $this->entityManager->flush();
+
+        if ($request->isXmlHttpRequest()) {
+            return new JsonResponse(['status' => 'success']);
+        }
 
         $this->addFlash('success', 'La tâche a bien été supprimée.');
 
