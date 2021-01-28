@@ -81,6 +81,7 @@ class TaskController extends AbstractController
     {
         $options = [
             "done" => $request->get('done'),
+            "user" => $request->get('user')
         ];
         $anonymous = $request->get('anonymous');
         $query = null !== $anonymous ? $this->taskRepository->findAnonymousQuery($options) : $this->taskRepository->findByQuery($options);

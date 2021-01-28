@@ -5,7 +5,7 @@
 {% block body %}
     <div class="row">
         {% if app.request.query.get('anonymous') is null %}
-        <div class="col-12 col-sm-6 col-md-4 py-3">
+        <div class="col-12 col-sm-6 col-md-4 py-3 mx-auto">
             <a href="{{ path('admin_task_index', {'anonymous': true}) }}" class="btn btn-outline-danger w-100">
                 <div class="text-center">
                     <span class="fa fa-question fa-2x"></span>
@@ -15,7 +15,7 @@
         </div>
         {% endif %}
         {% if app.request.query.get('done') is null or app.request.query.get('done') == 1 %}
-            <div class="col-12 col-sm-6 col-md-4 py-3">
+            <div class="col-12 col-sm-6 col-md-4 py-3 mx-auto">
                 <a href="{{ path('admin_task_index', {'done': false}) }}" class="btn btn-outline-info w-100 h-100">
                     <div class="text-center">
                         <span class="fa fa-list fa-2x"></span>
@@ -25,7 +25,7 @@
             </div>
         {% endif %}
         {% if app.request.query.get('done') is null or app.request.query.get('done') == 0 %}
-            <div class="col-12 col-sm-6 col-md-4 py-3">
+            <div class="col-12 col-sm-6 col-md-4 py-3 mx-auto">
                 <a href="{{ path('admin_task_index', {'done': true}) }}" class="btn btn-outline-secondary w-100 h-100">
                     <div class="text-center">
                         <span class="fa fa-check fa-2x"></span>
@@ -34,8 +34,8 @@
                 </a>
             </div>
         {% endif %}
-        {% if app.request.query.get('done') is not null or app.request.query.get('anonymous') is not null %}
-            <div class="col-12 col-sm-6 col-md-4 py-3">
+        {% if app.request.query.get('done') is not null or app.request.query.get('anonymous') is not null or app.request.query.get('user') is not null %}
+            <div class="col-12 col-sm-6 col-md-4 py-3 mx-auto">
                 <a href="{{ path('admin_task_index') }}" class="btn btn-outline-success w-100 h-100">
                     <div class="text-center">
                         <span class="fa fa-tasks fa-2x"></span>

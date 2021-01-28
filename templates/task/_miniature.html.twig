@@ -5,7 +5,7 @@
         {% if displayUsername is defined and displayUsername %}
             {% if task.user is not null %}
                 <small class="text-muted">par <a
-                            href="{{ path('user_edit', {'id': task.user.id}) }}">{{ task.user }}</a></small>
+                            href="{{ path('admin_task_index', {'user' : task.user.id}) }}">{{ task.user }}</a></small>
             {% else %}
                 <div class="mt-2 badge badge-danger">Anonyme</div>
             {% endif %}
