@@ -1,3 +1,17 @@
+function hideElem(elem) {
+    let height = elem.height();
+    elem.css({
+        'height': height + 'px',
+        'overflow': 'hidden',
+    })
+    elem.animate({
+        'max-width' : 0 + '%',
+        'padding' : 0,
+    }, 400, function () {
+        elem.remove();
+    });
+}
+
 $('.ajax-submit').on('submit', function (e) {
     e.preventDefault();
     let form = $(this);
@@ -13,9 +27,7 @@ $('.ajax-submit').on('submit', function (e) {
         },
         success: function (data) {
             if (data.status === 'success') {
-                miniature.parent().hide(200, function () {
-                    miniature.parent().remove();
-                });
+                hideElem(miniature.parent());
             }
         }
     })

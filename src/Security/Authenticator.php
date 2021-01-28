@@ -102,7 +102,7 @@ class Authenticator extends AbstractFormLoginAuthenticator implements PasswordAu
         if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
             return new RedirectResponse($targetPath);
         }
-        return new RedirectResponse($this->urlGenerator->generate('task_index'));
+        return new RedirectResponse($this->urlGenerator->generate('homepage'));
     }
 
     protected function getLoginUrl()

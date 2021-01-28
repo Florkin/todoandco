@@ -75,7 +75,7 @@ class TaskController extends AbstractController
         $result = null !== $anonymous ? $this->taskRepository->findAnonymousQuery($options) : $this->taskRepository->findByQuery($options);
 
         return $this->render(
-            'task/index.html.twig', [
+            'admin/task/index.html.twig', [
             'tasks' => $result,
             'showUsername' => true,
         ]);

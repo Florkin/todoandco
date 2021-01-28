@@ -1,7 +1,15 @@
-<div class="card task-miniature {% if task.isDone %}isDone{% else %}todo{% endif %}">
-    <div class="card-header">
+<div class="card task-miniature{% if task.isDone %} isDone{% else %} todo{% endif %}">
+    <div class="card-header{% if displayUsername is defined and displayUsername %} with-username{% endif %}">
         <h4>{{ task.title }}</h4>
         <small class="text-muted">Ajoutée le {{ task.createdAt|format_date('long', locale='fr') }}</small>
+        {% if displayUsername is defined and displayUsername %}
+            {% if task.user is not null %}
+                <small class="text-muted">par <a
+                            href="{{ path('user_edit', {'id': task.user.id}) }}">{{ task.user }}</a></small>
+            {% else %}
+                <div class="mt-2 badge badge-danger">Anonyme</div>
+            {% endif %}
+        {% endif %}
     </div>
     <div class="card-body">
         {{ task.content }}
@@ -12,7 +20,8 @@
                 {% include 'task/_delete_form.html.twig' %}
             {% endif %}
             {% if is_granted('TASK_EDIT', task) %}
-                <a href="{{ path('task_edit', {'id': task.id}) }}" class="btn text-warning"><span class="fa fa-edit"></span></a>
+                <a href="{{ path('task_edit', {'id': task.id}) }}" class="btn text-warning"><span
+                            class="fa fa-edit"></span></a>
             {% endif %}
         </div>
     </div>
