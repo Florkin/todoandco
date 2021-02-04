@@ -4,6 +4,7 @@ namespace App\Tests\Controller;
 
 use App\DataFixtures\TaskFixtures;
 use App\DataFixtures\UserFixtures;
+use App\Entity\Task;
 use App\Repository\TaskRepository;
 use App\Repository\UserRepository;
 use Liip\TestFixturesBundle\Test\FixturesTrait;
@@ -105,6 +106,25 @@ class TaskControllerTest extends WebTestCase
         $this->assertResponseRedirects('/tasks');
     }
 
+    public function testTaskToggle()
+    {
+        $client = static::createClient();
+        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
+        $user = self::$container->get(UserRepository::class)->findOneBy([
+            'email' => 'user@demo.com'
+        ]);
+        $client->loginUser($user);
+
+        /** @var Task $task */
+        $task = self::$container->get(TaskRepository::class)->findOneBy([
+            'user' => $user
+        ]);
+        $done = $task->isDone();
+        $crawler = $client->xmlHttpRequest('POST', '/tasks/' . $task->getId() . '/toggle');
+        $this->assertNotEquals($task->isDone(), $done);
+
+    }
+
     public function testForbiddenTaskEdit()
     {
         $client = static::createClient();
@@ -114,7 +134,11 @@ class TaskControllerTest extends WebTestCase
         ]);
         $client->loginUser($user);
         $task = self::$container->get(TaskRepository::class)->findOneByNot('user', $user);
-        $crawler = $client->request('GET', '/tasks/' . $task->getId() . '/edit');
-        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+        $crawler = $client->request('GET', '/tasks/' . $task[0]->getId() . '/edit');
+        $this->assertResponseStatusCodeSame(Response::HTTP_FOUND);
+        $this->assertResponseRedirects('/');
+        $client->followRedirect();
+        $this->assertSelectorExists('.alert.alert-danger');
+
     }
 }
