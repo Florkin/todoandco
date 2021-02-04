@@ -50,6 +50,18 @@ class TaskRepository extends ServiceEntityRepository
         return $query->getQuery();
     }
 
+    public function findOneByNot($field, $value)
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb
+            ->where($qb->expr()->not($qb->expr()->eq('a.'.$field, '?1')))
+            ->setMaxResults(1)
+            ->setParameter(1, $value);
+
+        return $qb->getQuery()
+            ->getResult();
+    }
+
     private function addOptions($options, $query)
     {
         if (null !== $options) {
