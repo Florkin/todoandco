@@ -73,7 +73,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/users/{id}/edit", name="user_edit")
+     * @Route("users/{id}/edit", name="user_edit")
      * @param User $user
      * @param Request $request
      * @param UserFormHandler $formHandler
@@ -85,7 +85,10 @@ class UserController extends AbstractController
 
         if ($formHandler->handle($request, $user,UserType::class)) {
             $this->addFlash('success', "L'utilisateur a bien été modifié");
-            return $this->redirectToRoute('user_index');
+            if ($this->isGranted('ROLE_ADMIN')) {
+                return $this->redirectToRoute('user_index');
+            }
+            return $this->redirectToRoute('homepage');
         }
 
         return $this->render('user/edit.html.twig', ['form' => $formHandler->createView(), 'user' => $user]);

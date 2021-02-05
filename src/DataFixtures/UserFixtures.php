@@ -29,10 +29,13 @@ class UserFixtures extends BaseFixtures
         $user = $this->builder->build('UserDemo', 'user@demo.com', 'demodemo');
         $this->addReference(User::class . '_1', $user);
 
-        $user = $this->builder->build('AdminDemo', 'admin@demo.com', 'demodemo', ['ROLE_ADMIN']);
+        $user = $this->builder->build('OtherUserDemo', 'otheruser@demo.com', 'demodemo');
         $this->addReference(User::class . '_2', $user);
 
-        for ($i = 3; $i <= Self::NUMBER_OF_USERS; $i++) {
+        $user = $this->builder->build('AdminDemo', 'admin@demo.com', 'demodemo', ['ROLE_ADMIN']);
+        $this->addReference(User::class . '_3', $user);
+
+        for ($i = 4; $i <= Self::NUMBER_OF_USERS; $i++) {
             $user = $this->builder->build(
                 $this->faker->userName,
                 $this->faker->email,
