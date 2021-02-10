@@ -139,6 +139,34 @@ class TaskControllerTest extends WebTestCase
         $this->assertResponseRedirects('/');
         $client->followRedirect();
         $this->assertSelectorExists('.alert.alert-danger');
+    }
 
+    public function testForbiddenTaskDelete()
+    {
+        $client = static::createClient();
+        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
+        $user = self::$container->get(UserRepository::class)->findOneBy([
+            'email' => 'user@demo.com'
+        ]);
+        $client->loginUser($user);
+        $task = self::$container->get(TaskRepository::class)->findOneByNot('user', $user);
+        $crawler = $client->xmlHttpRequest('GET', '/tasks/' . $task[0]->getId() . '/delete');
+        $this->assertResponseStatusCodeSame(Response::HTTP_FOUND);
+        $this->assertResponseRedirects('/');
+        $client->followRedirect();
+        $this->assertSelectorExists('.alert.alert-danger');
+    }
+
+    public function testTaskDelete()
+    {
+        $client = static::createClient();
+        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
+        $user = self::$container->get(UserRepository::class)->findOneBy([
+            'email' => 'user@demo.com'
+        ]);
+        $client->loginUser($user);
+        $task = self::$container->get(TaskRepository::class)->findOneBy(['user' => $user]);
+        $crawler = $client->xmlHttpRequest('GET', '/tasks/' . $task->getId() . '/delete');
+        $this->assertNull($task->getId());
     }
 }

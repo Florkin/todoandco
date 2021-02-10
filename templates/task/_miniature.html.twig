@@ -1,4 +1,4 @@
-<div class="card task-miniature{% if task.isDone %} isDone{% else %} todo{% endif %}">
+<div id="task_{{ task.id }}" class="card task-miniature{% if task.isDone %} isDone{% else %} todo{% endif %}">
     <div class="card-header{% if displayUsername is defined and displayUsername %} with-username{% endif %}">
         <h4>{{ task.title }}</h4>
         <small class="text-muted">Ajoutée le {{ task.createdAt|format_date('long', locale='fr') }}</small>

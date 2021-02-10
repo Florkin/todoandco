@@ -13,9 +13,42 @@ class UserControllerTest extends WebTestCase
 {
     use FixturesTrait;
 
+    public function testAddUser()
+    {
+        $client = static::createClient();
+        $this->loadFixtures([UserFixtures::class]);
+        $user = self::$container->get(UserRepository::class)->findOneBy([
+            'email' => 'admin@demo.com'
+        ]);
+        $client->loginUser($user);
+        $crawler = $client->request('GET', '/register');
+        $form = $crawler->filter('[name="user"]')->form([
+            'user[username]' => 'testUsername',
+            'user[email]' => 'test@test.com',
+            'user[plainPassword][first]' => 'testpassword',
+            'user[plainPassword][second]' => 'testpassword'
+        ]);
+        $client->submit($form);
+        $this->assertResponseRedirects('/');
+    }
+
+    public function testLogout()
+    {
+        $client = static::createClient();
+        $this->loadFixtures([UserFixtures::class]);
+        $user = self::$container->get(UserRepository::class)->findOneBy([
+            'email' => 'user@demo.com'
+        ]);
+        $client->loginUser($user);
+        $crawler = $client->request('GET', '/logout');
+        $crawler = $client->request('GET', '/');
+        $this->assertResponseRedirects('/login');
+    }
+
     public function testUserCantAccessList()
     {
         $client = static::createClient();
+        $this->loadFixtures([UserFixtures::class]);
         $user = self::$container->get(UserRepository::class)->findOneBy([
             'email' => 'user@demo.com'
         ]);
