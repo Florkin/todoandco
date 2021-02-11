@@ -7,209 +7,175 @@ use App\Repository\UserRepository;
 use Liip\TestFixturesBundle\Test\FixturesTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\DomCrawler\Form;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\User\UserInterface;
+
 
 class UserControllerTest extends WebTestCase
 {
     use FixturesTrait;
 
+    private $client;
+    /**
+     * @var UserRepository
+     */
+    private $userRepository;
+    /**
+     * @var UserInterface
+     */
+    private $user;
+    /**
+     * @var UserInterface
+     */
+    private $otherUser;
+    /**
+     * @var UserInterface
+     */
+    private $userNoTask;
+    /**
+     * @var UserInterface
+     */
+    private $admin;
+
+    public function setUp()
+    {
+        $this->client = static::createClient();
+        $this->loadFixtures([UserFixtures::class]);
+        $this->userRepository = self::$container->get(UserRepository::class);
+        $this->user = $this->userRepository->findOneBy(['email' => 'user@demo.com']);
+        $this->otherUser = $this->userRepository->findOneBy(['email' => 'otheruser@demo.com']);
+        $this->userNoTask = $this->userRepository->findOneBy(['email' => 'notaskuser@demo.com']);
+        $this->admin = $this->userRepository->findOneBy(['email' => 'admin@demo.com']);
+    }
+
     public function testAddUser()
     {
-        $client = static::createClient();
-        $this->loadFixtures([UserFixtures::class]);
-        $user = self::$container->get(UserRepository::class)->findOneBy([
-            'email' => 'admin@demo.com'
-        ]);
-        $client->loginUser($user);
-        $crawler = $client->request('GET', '/register');
-        $form = $crawler->filter('[name="user"]')->form([
-            'user[username]' => 'testUsername',
-            'user[email]' => 'test@test.com',
-            'user[plainPassword][first]' => 'testpassword',
-            'user[plainPassword][second]' => 'testpassword'
-        ]);
-        $client->submit($form);
+        $this->client->loginUser($this->admin);
+        $crawler = $this->client->request('GET', '/register');
+        $this->client->submit($this->getUserForm($crawler));
         $this->assertResponseRedirects('/');
     }
 
     public function testLogout()
     {
-        $client = static::createClient();
-        $this->loadFixtures([UserFixtures::class]);
-        $user = self::$container->get(UserRepository::class)->findOneBy([
-            'email' => 'user@demo.com'
-        ]);
-        $client->loginUser($user);
-        $crawler = $client->request('GET', '/logout');
-        $crawler = $client->request('GET', '/');
+        $this->client->loginUser($this->user);
+        $crawler = $this->client->request('GET', '/logout');
+        $crawler = $this->client->request('GET', '/');
         $this->assertResponseRedirects('/login');
     }
 
     public function testUserCantAccessList()
     {
-        $client = static::createClient();
-        $this->loadFixtures([UserFixtures::class]);
-        $user = self::$container->get(UserRepository::class)->findOneBy([
-            'email' => 'user@demo.com'
-        ]);
-        $client->loginUser($user);
-        $client->request('GET', '/admin/users');
+        $this->client->loginUser($this->user);
+        $this->client->request('GET', '/admin/users');
         $this->assertResponseStatusCodeSame(Response::HTTP_FOUND);
         $this->assertResponseRedirects('/');
-        $client->followRedirect();
+        $this->client->followRedirect();
         $this->assertSelectorExists('.alert.alert-danger');
     }
 
     public function testUserList()
     {
-        $client = static::createClient();
-        $this->loadFixtures([UserFixtures::class]);
-        $user = self::$container->get(UserRepository::class)->findOneBy([
-            'email' => 'admin@demo.com'
-        ]);
-        $client->loginUser($user);
-        $client->request('GET', '/admin/users');
+        $this->client->loginUser($this->admin);
+        $this->client->request('GET', '/admin/users');
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         $this->assertSelectorExists('#admin_navbar');
     }
 
     public function testUserEdit()
     {
-        $client = static::createClient();
-        $this->loadFixtures([UserFixtures::class]);
-        $userRepo = self::$container->get(UserRepository::class);
-        $user = $userRepo->findOneBy([
-            'email' => 'user@demo.com',
-        ]);
-        $admin = $userRepo->findOneBy([
-            'email' => 'admin@demo.com'
-        ]);
-        $client->loginUser($user);
-        $crawler = $client->request('GET', 'users/' . $user->getId() . '/edit');
+        $this->client->loginUser($this->user);
+        $crawler = $this->client->request('GET', 'users/' . $this->user->getId() . '/edit');
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
 
-        $client->submit($this->getUserForm($crawler));
+        $this->client->submit($this->getUserForm($crawler));
         $this->assertResponseRedirects('/');
-        $client->followRedirect();
+        $this->client->followRedirect();
         $this->assertSelectorExists(".alert.alert-success");
 
         // Check if Admin is granted too
-        $client->restart();
-        $client->loginUser($admin);
-        $crawler = $client->request('GET', 'users/' . $user->getId() . '/edit');
+        $this->client->restart();
+        $this->client->loginUser($this->admin);
+        $crawler = $this->client->request('GET', 'users/' . $this->user->getId() . '/edit');
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         $form = $this->getUserForm($crawler);
         $form['user[admin]']->tick();
-        $client->submit($form);
-        $user = $userRepo->find($user->getId());
+        $this->client->submit($form);
+        $user = $this->userRepository->find($this->user->getId());
         $this->assertTrue(in_array('ROLE_ADMIN', $user->getRoles()));
         $this->assertResponseRedirects('/admin/users');
-        $client->followRedirect();
+        $this->client->followRedirect();
         $this->assertSelectorExists(".alert.alert-success");
 
     }
 
     public function testUserEditByForbiddenUser()
     {
-        $client = static::createClient();
-        $this->loadFixtures([UserFixtures::class]);
-        $userRepo = self::$container->get(UserRepository::class);
-        $user = $userRepo->findOneBy([
-            'email' => 'otheruser@demo.com',
-        ]);
-        $userToModify = $userRepo->findOneBy([
-            'email' => 'user@demo.com'
-        ]);
-        $client->loginUser($user);
-        $client->request('GET', 'users/' . $userToModify->getId() . '/edit');
+        $this->client->loginUser($this->otherUser);
+        $this->client->request('GET', 'users/' . $this->user->getId() . '/edit');
         $this->assertResponseStatusCodeSame(Response::HTTP_FOUND);
         $this->assertResponseRedirects('/');
-        $client->followRedirect();
+        $this->client->followRedirect();
         $this->assertSelectorExists('.alert.alert-danger');
     }
 
     public function testUserDelete()
     {
-        $client = static::createClient();
-        $this->loadFixtures([UserFixtures::class]);
-        $userRepo = self::$container->get(UserRepository::class);
-        $admin = $userRepo->findOneBy([
-            'email' => 'admin@demo.com',
-        ]);
-        $client->loginUser($admin);
-        $user = $userRepo->findOneBy([
-            'email' => 'user@demo.com',
-        ]);
-        $id = $user->getId();
-        $crawler = $client->request('GET', 'admin/users');
-        $form = $crawler->filter('#delete_form_user_' . $user->getId())->form([
+        $this->client->loginUser($this->admin);
+        $id = $this->user->getId();
+        $crawler = $this->client->request('GET', 'admin/users');
+        $form = $crawler->filter('#delete_form_user_' . $this->user->getId())->form([
             '_method' => 'DELETE'
         ]);
-        $client->submit($form);
-        $user = $userRepo->find($id);
+        $this->client->submit($form);
+        $user = $this->userRepository->find($id);
         $this->assertNull($user);
         $this->assertResponseRedirects('/admin/users');
-        $client->followRedirect();
+        $this->client->followRedirect();
         $this->assertSelectorExists(".alert.alert-success");
     }
 
     public function testUserDeleteInvalidToken()
     {
-        $client = static::createClient();
-        $this->loadFixtures([UserFixtures::class]);
-        $userRepo = self::$container->get(UserRepository::class);
-        $admin = $userRepo->findOneBy([
-            'email' => 'admin@demo.com',
-        ]);
-        $client->loginUser($admin);
-        $user = $userRepo->findOneBy([
-            'email' => 'user@demo.com',
-        ]);
-        $id = $user->getId();
-        $crawler = $client->request('GET', 'admin/users');
-        $form = $crawler->filter('#delete_form_user_' . $user->getId())->form([
+        $this->client->loginUser($this->admin);
+        $id = $this->user->getId();
+        $crawler = $this->client->request('GET', 'admin/users');
+        $form = $crawler->filter('#delete_form_user_' . $this->user->getId())->form([
             '_method' => 'DELETE',
             '_token' => 'invalid-token'
         ]);
-        $client->submit($form);
-        $user = $userRepo->find($id);
+        $this->client->submit($form);
+        $user = $this->userRepository->find($id);
         $this->assertNotNull($user);
         $this->assertResponseRedirects('/admin/users');
-        $client->followRedirect();
+        $this->client->followRedirect();
         $this->assertSelectorExists(".alert.alert-danger");
     }
 
     public function testAuthenticatedUserDelete()
     {
-        $client = static::createClient();
-        $this->loadFixtures([UserFixtures::class]);
-        $userRepo = self::$container->get(UserRepository::class);
-        $user = $userRepo->findOneBy([
-            'email' => 'admin@demo.com',
-        ]);
-        $client->loginUser($user);
-        $id = $user->getId();
-        $crawler = $client->request('GET', 'admin/users');
-        $form = $crawler->filter('#delete_form_user_' . $user->getId())->form([
+        $this->client->loginUser($this->admin);
+        $id = $this->admin->getId();
+        $crawler = $this->client->request('GET', 'admin/users');
+        $form = $crawler->filter('#delete_form_user_' . $this->admin->getId())->form([
             '_method' => 'DELETE'
         ]);
-        $client->submit($form);
-        $user = $userRepo->find($id);
+        $this->client->submit($form);
+        $user = $this->userRepository->find($id);
         $this->assertNull($user);
         $this->assertResponseRedirects('/login');
-        $client->followRedirect();
+        $this->client->followRedirect();
         $this->assertSelectorExists(".alert.alert-success");
     }
 
-    private function getUserForm(Crawler $crawler)
+    private function getUserForm(Crawler $crawler): Form
     {
-        $form = $crawler->filter('[name="user"]')->form([
+        return $crawler->filter('[name="user"]')->form([
             'user[username]' => 'testUsernameMod',
             'user[email]' => 'test@test.com',
             'user[plainPassword][first]' => 'testpassword',
             'user[plainPassword][second]' => 'testpassword'
         ]);
-
-        return $form;
     }
 }

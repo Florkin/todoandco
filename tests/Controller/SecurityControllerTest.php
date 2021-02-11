@@ -6,42 +6,50 @@ use App\DataFixtures\UserFixtures;
 use Liip\TestFixturesBundle\Test\FixturesTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Csrf\CsrfTokenManager;
 
 class SecurityControllerTest extends WebTestCase
 {
     use FixturesTrait;
 
+    private $client;
+    /**
+     * @var CsrfTokenManager
+     */
+    private $tokenManager;
+
+    public function setUp()
+    {
+        $this->client = static::createClient();
+        $this->tokenManager = $this->client->getContainer()->get('security.csrf.token_manager');
+        $this->loadFixtures([UserFixtures::class]);
+    }
+
     public function testDisplayLoginWhenNotLoggedIn()
     {
-        $client = static::createClient();
-        $client->request('GET', '/login');
+        $this->client->request('GET', '/login');
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         $this->assertSelectorTextContains('h1', 'Connectez vous');
     }
 
     public function testLoginWithBadCredentials()
     {
-        $client = static::createClient();
-        $csrfToken = $client->getContainer()->get('security.csrf.token_manager')->getToken('authenticate');
-        $client->request('POST', '/login', [
+        $this->client->request('POST', '/login', [
             'email' => 'user@demo.com',
             'password' => 'badpassword',
-            '_csrf_token' => $csrfToken
+            '_csrf_token' => $this->tokenManager->getToken('authenticate')
         ]);
         $this->assertResponseRedirects('/login');
-        $client->followRedirect();
+        $this->client->followRedirect();
         $this->assertSelectorExists('.alert.alert-danger');
     }
 
     public function testSuccessfullLogin()
     {
-        $client = static::createClient();
-        $this->loadFixtures([UserFixtures::class]);
-        $csrfToken = $client->getContainer()->get('security.csrf.token_manager')->getToken('authenticate');
-        $client->request('POST', '/login', [
+        $this->client->request('POST', '/login', [
             'email' => 'user@demo.com',
             'password' => 'demodemo',
-            '_csrf_token' => $csrfToken
+            '_csrf_token' => $this->tokenManager->getToken('authenticate')
         ]);
         $this->assertResponseRedirects('/');
     }
