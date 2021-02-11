@@ -21,6 +21,7 @@ class RegistrationController extends AbstractController
      * @param UserFormHandler $formHandler
      * @return Response
      * @Route("/register", name="app_register")
+     * @Route("/admin/users/new", name="user_new")
      */
     public function register(Request $request,
                              GuardAuthenticatorHandler $guardAuthenticatorHandler,

@@ -144,14 +144,10 @@ class TaskController extends AbstractController
         $task->setDone(!$task->isDone());
         $this->entityManager->flush();
 
-        if ($request->isXmlHttpRequest()) {
-            return $this->render('task/_miniature.html.twig', [
-                'task' => $task
-            ]);
-        }
+        return $this->render('task/_miniature.html.twig', [
+            'task' => $task
+        ]);
 
-        $this->addFlash('success', sprintf('La tâche %s a bien été marquée comme faite.', $task->getTitle()));
-        return $this->redirectToRoute('task_index');
     }
 
     /**
@@ -166,12 +162,6 @@ class TaskController extends AbstractController
         $this->entityManager->remove($task);
         $this->entityManager->flush();
 
-        if ($request->isXmlHttpRequest()) {
-            return new JsonResponse(['status' => 'success']);
-        }
-
-        $this->addFlash('success', 'La tâche a bien été supprimée.');
-
-        return $this->redirectToRoute('task_index');
+        return new JsonResponse(['status' => 'success']);
     }
 }

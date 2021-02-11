@@ -12,6 +12,13 @@
 	{% block stylesheets %}{% endblock %}
 </head>
 <body>
+<noscript>
+	<div class="noscript">
+		<div class="noscript-alert alert alert-danger">
+			Vous devez activer javascript pour utiliser cette application
+		</div>
+	</div>
+</noscript>
 {% if is_granted('ROLE_ADMIN') %}
 	{% include 'admin/admin-bar.html.twig' %}
 {% endif %}
