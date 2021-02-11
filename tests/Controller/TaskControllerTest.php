@@ -46,9 +46,9 @@ class TaskControllerTest extends WebTestCase
     public function setUp()
     {
         $this->client = static::createClient();
+        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
         $userRepository = self::$container->get(UserRepository::class);
         $taskRepository = self::$container->get(TaskRepository::class);
-        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
         $this->user = $userRepository->findOneBy(['email' => 'user@demo.com']);
         $this->userNoTask = $userRepository->findOneBy(['email' => 'notaskuser@demo.com']);
         $this->admin = $userRepository->findOneBy(['email' => 'admin@demo.com']);

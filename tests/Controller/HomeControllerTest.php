@@ -17,10 +17,10 @@ class HomeControllerTest extends WebTestCase
     public function setUp()
     {
         $this->client = static::createClient();
+        $this->loadFixtures([UserFixtures::class]);
         $userRepository = self::$container->get(UserRepository::class);
         $this->user = $userRepository->findOneBy(['email' => 'user@demo.com']);
         $this->admin = $userRepository->findOneBy(['email' => 'admin@demo.com']);
-        $this->loadFixtures([UserFixtures::class]);
     }
 
     public function testRedirectToLogin()

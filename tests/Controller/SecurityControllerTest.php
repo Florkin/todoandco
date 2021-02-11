@@ -21,8 +21,8 @@ class SecurityControllerTest extends WebTestCase
     public function setUp()
     {
         $this->client = static::createClient();
-        $this->tokenManager = $this->client->getContainer()->get('security.csrf.token_manager');
         $this->loadFixtures([UserFixtures::class]);
+        $this->tokenManager = $this->client->getContainer()->get('security.csrf.token_manager');
     }
 
     public function testDisplayLoginWhenNotLoggedIn()

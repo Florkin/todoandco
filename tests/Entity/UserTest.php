@@ -21,8 +21,8 @@ class UserTest extends KernelTestCase
     public function setUp()
     {
         self::bootKernel();
+        $this->loadFixtures([TaskFixtures::class]);
         $this->taskRepository = self::$container->get(TaskRepository::class);
-        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
     }
 
     public function getTask()
