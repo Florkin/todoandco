@@ -8,12 +8,12 @@ use App\Handler\Forms\UserFormHandler;
 use App\Handler\PaginatorHandler;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class UserController extends AbstractController
 {
@@ -82,15 +82,21 @@ class UserController extends AbstractController
      * @param User $user
      * @param Request $request
      * @param SessionInterface $session
+     * @param TokenStorageInterface $tokenStorage
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function delete(User $user, Request $request, SessionInterface $session)
+    public function delete(User $user, Request $request, SessionInterface $session, TokenStorageInterface $tokenStorage)
     {
         $this->denyAccessUnlessGranted('USER_DELETE', $user);
         if ($this->isCsrfTokenValid("delete" . $user->getId(), $request->get("_token"))) {
             if ($this->getUser()->getId() === $user->getId()) {
-                $session->invalidate();
+                $this->container->get('security.token_storage')->setToken(null);
+                $this->entityManager->remove($user);
+                $this->entityManager->flush();
+                $this->addFlash('success', 'Votre compte a bien été supprimée.');
+                return $this->redirectToRoute('app_login');
             }
+
             $this->entityManager->remove($user);
             $this->entityManager->flush();
 

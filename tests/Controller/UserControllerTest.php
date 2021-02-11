@@ -153,6 +153,28 @@ class UserControllerTest extends WebTestCase
         $this->assertSelectorExists(".alert.alert-success");
     }
 
+    public function testAuthenticatedUserDelete()
+    {
+        $client = static::createClient();
+        $this->loadFixtures([UserFixtures::class]);
+        $userRepo = self::$container->get(UserRepository::class);
+        $user = $userRepo->findOneBy([
+            'email' => 'admin@demo.com',
+        ]);
+        $client->loginUser($user);
+        $id = $user->getId();
+        $crawler = $client->request('GET', 'admin/users');
+        $form = $crawler->filter('#delete_form_user_' . $user->getId())->form([
+            '_method' => 'DELETE'
+        ]);
+        $client->submit($form);
+        $user = $userRepo->find($id);
+        $this->assertNull($user);
+        $this->assertResponseRedirects('/login');
+        $client->followRedirect();
+        $this->assertSelectorExists(".alert.alert-success");
+    }
+
     private function getUserForm(Crawler $crawler)
     {
         $form = $crawler->filter('[name="user"]')->form([

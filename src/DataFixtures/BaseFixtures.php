@@ -8,8 +8,8 @@ use Faker\Factory;
 
 class BaseFixtures extends Fixture
 {
-    const NUMBER_OF_USERS = 20;
-    const NUMBER_OF_TASKS = 400;
+    const NUMBER_OF_USERS = 10;
+    const NUMBER_OF_TASKS = 100;
 
     protected $faker;
 
