@@ -41,10 +41,6 @@ class TaskVoter extends Voter
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
         $this->user = $token->getUser();
-
-        if ($this->security->isGranted('ROLE_SUPER_ADMIN')) {
-            return true;
-        }
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
             case 'TASK_EDIT':
@@ -54,7 +50,6 @@ class TaskVoter extends Voter
                 return $this->canDelete($subject);
                 break;
         }
-
         return false;
     }
 

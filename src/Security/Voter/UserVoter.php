@@ -48,7 +48,6 @@ class UserVoter extends Voter
                 return $this->isSameUser($subject);
                 break;
         }
-
         return false;
     }
 

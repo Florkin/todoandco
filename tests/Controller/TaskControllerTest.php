@@ -184,4 +184,85 @@ class TaskControllerTest extends WebTestCase
         $crawler = $client->xmlHttpRequest('GET', '/tasks/' . $task->getId() . '/delete');
         $this->assertNull($task->getId());
     }
+
+    public function testTaskDeletePermissions()
+    {
+        $client = static::createClient();
+        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
+        $user = self::$container->get(UserRepository::class)->findOneBy([
+            'email' => 'notaskuser@demo.com'
+        ]);
+        $taskUser = self::$container->get(UserRepository::class)->findOneBy([
+            'email' => 'user@demo.com'
+        ]);
+        $client->loginUser($user);
+        $taskToDelete = self::$container->get(TaskRepository::class)->findOneBy(['user' => $taskUser]);
+        $crawler = $client->xmlHttpRequest('GET', '/tasks/' . $taskToDelete->getId() . '/delete');
+        $this->assertNotNull($taskToDelete->getId());
+    }
+
+    public function testAnonymousTaskDeletePermissions()
+    {
+        $client = static::createClient();
+        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
+        $user = self::$container->get(UserRepository::class)->findOneBy([
+            'email' => 'user@demo.com'
+        ]);
+        $client->loginUser($user);
+        $taskToDelete = self::$container->get(TaskRepository::class)->findOneBy(['user' => null]);
+        $crawler = $client->xmlHttpRequest('GET', '/tasks/' . $taskToDelete->getId() . '/delete');
+        $this->assertNotNull($taskToDelete->getId());
+    }
+
+    public function testAnonymousTaskDelete()
+    {
+        $client = static::createClient();
+        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
+        $admin = self::$container->get(UserRepository::class)->findOneBy([
+            'email' => 'admin@demo.com'
+        ]);
+        $client->loginUser($admin);
+        $taskToDelete = self::$container->get(TaskRepository::class)->findOneBy(['user' => null]);
+        $crawler = $client->xmlHttpRequest('GET', '/tasks/' . $taskToDelete->getId() . '/delete');
+        $this->assertNull($taskToDelete->getId());
+    }
+
+    public function testForbiddenAnonymousTaskEdit()
+    {
+        $client = static::createClient();
+        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
+        $user = self::$container->get(UserRepository::class)->findOneBy([
+            'email' => 'user@demo.com'
+        ]);
+        $client->loginUser($user);
+        $task = self::$container->get(TaskRepository::class)->findOneBy(['user' => null]);
+        $crawler = $client->request('GET', '/tasks/' . $task->getId() . '/edit');
+        $this->assertResponseStatusCodeSame(Response::HTTP_FOUND);
+        $this->assertResponseRedirects('/');
+        $client->followRedirect();
+        $this->assertSelectorExists('.alert.alert-danger');
+    }
+
+    public function testAnonymousTaskEdit()
+    {
+        $client = static::createClient();
+        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
+        $user = self::$container->get(UserRepository::class)->findOneBy([
+            'email' => 'admin@demo.com'
+        ]);
+        $client->loginUser($user);
+        $task = self::$container->get(TaskRepository::class)->findOneBy([
+            'user' => null
+        ]);
+        $crawler = $client->request('GET', '/tasks/' . $task->getId() . '/edit');
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+
+        //Check form submit
+        $form = $crawler->filter('[name="task"]')->form([
+            'task[title]' => 'Lorem Ipsum',
+            'task[content]' => 'Lorem Ipsum dolor sit amet',
+        ]);
+        $client->submit($form);
+        $this->assertResponseRedirects('/tasks');
+    }
 }
