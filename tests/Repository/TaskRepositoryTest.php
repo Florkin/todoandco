@@ -22,7 +22,7 @@ class TaskRepositoryTest extends KernelTestCase
         self::bootKernel();
         $this->loadFixtures([TaskFixtures::class]);
         $tasks = self::$container->get(TaskRepository::class)->count([]);
-        $this->assertEquals(400, $tasks);
+        $this->assertEquals(100, $tasks);
     }
 
     public function testFindByQueryIsQuery()

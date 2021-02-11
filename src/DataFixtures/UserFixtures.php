@@ -35,6 +35,8 @@ class UserFixtures extends BaseFixtures
         $user = $this->builder->build('AdminDemo', 'admin@demo.com', 'demodemo', ['ROLE_ADMIN']);
         $this->addReference(User::class . '_3', $user);
 
+        $user = $this->builder->build('NoTaskUserDemo', 'notaskuser@demo.com', 'demodemo');
+
         for ($i = 4; $i <= Self::NUMBER_OF_USERS; $i++) {
             $user = $this->builder->build(
                 $this->faker->userName,

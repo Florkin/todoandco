@@ -29,19 +29,14 @@ class PaginatorHandler
     /**
      * @param Request $request
      * @param Query $query
-     * @return PaginationInterface|bool
+     * @return PaginationInterface
      */
-    public function paginate(Request $request, Query $query)
+    public function paginate(Request $request, Query $query): PaginationInterface
     {
-        $page = $this->pager->paginate(
+        return $this->pager->paginate(
             $query,
             $request->query->getInt('page', 1),
             $request->query->getInt('limit', 12)
         );
-
-        if ($page->getTotalItemCount() > 0) {
-            return $page;
-        };
-        return false;
     }
 }

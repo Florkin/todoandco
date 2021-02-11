@@ -20,7 +20,7 @@ class UserRepositoryTest extends KernelTestCase
         self::bootKernel();
         $this->loadFixtures([UserFixtures::class]);
         $users = self::$container->get(UserRepository::class)->count([]);
-        $this->assertEquals(20, $users);
+        $this->assertEquals(11, $users);
     }
 
     public function testFindAllQueryIsQuery()

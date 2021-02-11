@@ -36,6 +36,21 @@ class TaskControllerTest extends WebTestCase
         $this->assertSelectorNotExists('#admin_navbar');
     }
 
+    public function testUserTaskIndexNoTask()
+    {
+        $client = static::createClient();
+        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
+        $user = self::$container->get(UserRepository::class)->findOneBy([
+            'email' => 'notaskuser@demo.com'
+        ]);
+        $client->loginUser($user);
+        $crawler = $client->request('GET', '/tasks');
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+        $this->assertSelectorNotExists('#admin_navbar');
+        $this->assertSelectorExists('.alert.alert-warning');
+        $this->assertSelectorNotExists('.task-miniature');
+    }
+
     public function testUserCantAccessAdminTaskIndex()
     {
         $client = static::createClient();
