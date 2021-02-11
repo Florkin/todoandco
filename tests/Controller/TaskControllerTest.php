@@ -10,6 +10,7 @@ use App\Repository\UserRepository;
 use Liip\TestFixturesBundle\Test\FixturesTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class TaskControllerTest extends WebTestCase
 {
@@ -17,10 +18,43 @@ class TaskControllerTest extends WebTestCase
     use FixturesTrait;
 
     private $client;
+    /**
+     * @var UserInterface
+     */
+    private $user;
+    /**
+     * @var UserInterface
+     */
+    private $admin;
+    /**
+     * @var UserInterface
+     */
+    private $userNoTask;
+    /**
+     * @var Task
+     */
+    private $userTask;
+    /**
+     * @var Task
+     */
+    private $notFromUserTask;
+    /**
+     * @var Task
+     */
+    private $nullUserTask;
 
     public function setUp()
     {
         $this->client = static::createClient();
+        $userRepository = self::$container->get(UserRepository::class);
+        $taskRepository = self::$container->get(TaskRepository::class);
+        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
+        $this->user = $userRepository->findOneBy(['email' => 'user@demo.com']);
+        $this->userNoTask = $userRepository->findOneBy(['email' => 'notaskuser@demo.com']);
+        $this->admin = $userRepository->findOneBy(['email' => 'admin@demo.com']);
+        $this->userTask = $taskRepository->findOneBy(['user' => $this->user]);
+        $this->notFromUserTask = $taskRepository->findOneByNot('user', $this->user)[0];
+        $this->nullUserTask = $taskRepository->findOneBy(['user' => null]);
     }
 
     public function testRedirectToLogin()
@@ -31,11 +65,7 @@ class TaskControllerTest extends WebTestCase
 
     public function testUserTaskIndex()
     {
-        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
-        $user = self::$container->get(UserRepository::class)->findOneBy([
-            'email' => 'user@demo.com'
-        ]);
-        $this->client->loginUser($user);
+        $this->client->loginUser($this->user);
         $crawler = $this->client->request('GET', '/tasks');
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         $this->assertSelectorNotExists('#admin_navbar');
@@ -43,11 +73,7 @@ class TaskControllerTest extends WebTestCase
 
     public function testUserTaskIndexNoTask()
     {
-        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
-        $user = self::$container->get(UserRepository::class)->findOneBy([
-            'email' => 'notaskuser@demo.com'
-        ]);
-        $this->client->loginUser($user);
+        $this->client->loginUser($this->userNoTask);
         $crawler = $this->client->request('GET', '/tasks');
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         $this->assertSelectorNotExists('#admin_navbar');
@@ -57,11 +83,7 @@ class TaskControllerTest extends WebTestCase
 
     public function testUserCantAccessAdminTaskIndex()
     {
-        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
-        $user = self::$container->get(UserRepository::class)->findOneBy([
-            'email' => 'user@demo.com'
-        ]);
-        $this->client->loginUser($user);
+        $this->client->loginUser($this->user);
         $crawler = $this->client->request('GET', 'admin/tasks');
         $this->assertResponseRedirects('/');
         $this->client->followRedirect();
@@ -70,11 +92,7 @@ class TaskControllerTest extends WebTestCase
 
     public function testAdminTaskIndex()
     {
-        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
-        $user = self::$container->get(UserRepository::class)->findOneBy([
-            'email' => 'admin@demo.com'
-        ]);
-        $this->client->loginUser($user);
+        $this->client->loginUser($this->admin);
         $crawler = $this->client->request('GET', 'admin/tasks');
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         $this->assertSelectorExists('#admin_navbar');
@@ -82,11 +100,7 @@ class TaskControllerTest extends WebTestCase
 
     public function testTaskNew()
     {
-        $this->loadFixtures([UserFixtures::class]);
-        $user = self::$container->get(UserRepository::class)->findOneBy([
-            'email' => 'user@demo.com'
-        ]);
-        $this->client->loginUser($user);
+        $this->client->loginUser($this->user);
         $crawler = $this->client->request('GET', '/tasks/new');
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
 
@@ -101,14 +115,8 @@ class TaskControllerTest extends WebTestCase
 
     public function testTaskEdit()
     {
-        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
-        $user = self::$container->get(UserRepository::class)->findOneBy([
-            'email' => 'user@demo.com'
-        ]);
-        $this->client->loginUser($user);
-        $task = self::$container->get(TaskRepository::class)->findOneBy([
-            'user' => $user
-        ]);
+        $this->client->loginUser($this->user);
+        $task = $this->userTask;
         $crawler = $this->client->request('GET', '/tasks/' . $task->getId() . '/edit');
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
 
@@ -123,16 +131,10 @@ class TaskControllerTest extends WebTestCase
 
     public function testTaskToggle()
     {
-        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
-        $user = self::$container->get(UserRepository::class)->findOneBy([
-            'email' => 'user@demo.com'
-        ]);
-        $this->client->loginUser($user);
+        $this->client->loginUser($this->user);
 
         /** @var Task $task */
-        $task = self::$container->get(TaskRepository::class)->findOneBy([
-            'user' => $user
-        ]);
+        $task = $this->userTask;
         $done = $task->isDone();
         $crawler = $this->client->xmlHttpRequest('POST', '/tasks/' . $task->getId() . '/toggle');
         $this->assertNotEquals($task->isDone(), $done);
@@ -141,13 +143,9 @@ class TaskControllerTest extends WebTestCase
 
     public function testForbiddenTaskEdit()
     {
-        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
-        $user = self::$container->get(UserRepository::class)->findOneBy([
-            'email' => 'user@demo.com'
-        ]);
-        $this->client->loginUser($user);
-        $task = self::$container->get(TaskRepository::class)->findOneByNot('user', $user);
-        $crawler = $this->client->request('GET', '/tasks/' . $task[0]->getId() . '/edit');
+        $this->client->loginUser($this->user);
+        $task = $this->notFromUserTask;
+        $crawler = $this->client->request('GET', '/tasks/' . $task->getId() . '/edit');
         $this->assertResponseStatusCodeSame(Response::HTTP_FOUND);
         $this->assertResponseRedirects('/');
         $this->client->followRedirect();
@@ -156,13 +154,9 @@ class TaskControllerTest extends WebTestCase
 
     public function testForbiddenTaskDelete()
     {
-        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
-        $user = self::$container->get(UserRepository::class)->findOneBy([
-            'email' => 'user@demo.com'
-        ]);
-        $this->client->loginUser($user);
-        $task = self::$container->get(TaskRepository::class)->findOneByNot('user', $user);
-        $crawler = $this->client->xmlHttpRequest('GET', '/tasks/' . $task[0]->getId() . '/delete');
+        $this->client->loginUser($this->user);
+        $task = $this->notFromUserTask;
+        $crawler = $this->client->xmlHttpRequest('GET', '/tasks/' . $task->getId() . '/delete');
         $this->assertResponseStatusCodeSame(Response::HTTP_FOUND);
         $this->assertResponseRedirects('/');
         $this->client->followRedirect();
@@ -171,63 +165,40 @@ class TaskControllerTest extends WebTestCase
 
     public function testTaskDelete()
     {
-        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
-        $user = self::$container->get(UserRepository::class)->findOneBy([
-            'email' => 'user@demo.com'
-        ]);
-        $this->client->loginUser($user);
-        $task = self::$container->get(TaskRepository::class)->findOneBy(['user' => $user]);
+        $this->client->loginUser($this->user);
+        $task = $this->userTask;
         $crawler = $this->client->xmlHttpRequest('GET', '/tasks/' . $task->getId() . '/delete');
         $this->assertNull($task->getId());
     }
 
     public function testTaskDeletePermissions()
     {
-        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
-        $user = self::$container->get(UserRepository::class)->findOneBy([
-            'email' => 'notaskuser@demo.com'
-        ]);
-        $taskUser = self::$container->get(UserRepository::class)->findOneBy([
-            'email' => 'user@demo.com'
-        ]);
-        $this->client->loginUser($user);
-        $taskToDelete = self::$container->get(TaskRepository::class)->findOneBy(['user' => $taskUser]);
+        $this->client->loginUser($this->userNoTask);
+        $taskToDelete = $this->userTask;
         $crawler = $this->client->xmlHttpRequest('GET', '/tasks/' . $taskToDelete->getId() . '/delete');
         $this->assertNotNull($taskToDelete->getId());
     }
 
     public function testAnonymousTaskDeletePermissions()
     {
-        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
-        $user = self::$container->get(UserRepository::class)->findOneBy([
-            'email' => 'user@demo.com'
-        ]);
-        $this->client->loginUser($user);
-        $taskToDelete = self::$container->get(TaskRepository::class)->findOneBy(['user' => null]);
+        $this->client->loginUser($this->user);
+        $taskToDelete = $this->nullUserTask;
         $crawler = $this->client->xmlHttpRequest('GET', '/tasks/' . $taskToDelete->getId() . '/delete');
         $this->assertNotNull($taskToDelete->getId());
     }
 
     public function testAnonymousTaskDelete()
     {
-        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
-        $admin = self::$container->get(UserRepository::class)->findOneBy([
-            'email' => 'admin@demo.com'
-        ]);
-        $this->client->loginUser($admin);
-        $taskToDelete = self::$container->get(TaskRepository::class)->findOneBy(['user' => null]);
+        $this->client->loginUser($this->admin);
+        $taskToDelete = $this->nullUserTask;
         $crawler = $this->client->xmlHttpRequest('GET', '/tasks/' . $taskToDelete->getId() . '/delete');
         $this->assertNull($taskToDelete->getId());
     }
 
     public function testForbiddenAnonymousTaskEdit()
     {
-        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
-        $user = self::$container->get(UserRepository::class)->findOneBy([
-            'email' => 'user@demo.com'
-        ]);
-        $this->client->loginUser($user);
-        $task = self::$container->get(TaskRepository::class)->findOneBy(['user' => null]);
+        $this->client->loginUser($this->user);
+        $task = $this->nullUserTask;
         $crawler = $this->client->request('GET', '/tasks/' . $task->getId() . '/edit');
         $this->assertResponseStatusCodeSame(Response::HTTP_FOUND);
         $this->assertResponseRedirects('/');
@@ -237,14 +208,8 @@ class TaskControllerTest extends WebTestCase
 
     public function testAnonymousTaskEdit()
     {
-        $this->loadFixtures([TaskFixtures::class, UserFixtures::class]);
-        $user = self::$container->get(UserRepository::class)->findOneBy([
-            'email' => 'admin@demo.com'
-        ]);
-        $this->client->loginUser($user);
-        $task = self::$container->get(TaskRepository::class)->findOneBy([
-            'user' => null
-        ]);
+        $this->client->loginUser($this->admin);
+        $task = $this->nullUserTask;
         $crawler = $this->client->request('GET', '/tasks/' . $task->getId() . '/edit');
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
 

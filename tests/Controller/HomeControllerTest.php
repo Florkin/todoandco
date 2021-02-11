@@ -3,7 +3,6 @@
 namespace App\Tests\Controller;
 
 use App\DataFixtures\UserFixtures;
-use App\Entity\User;
 use App\Repository\UserRepository;
 use Liip\TestFixturesBundle\Test\FixturesTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -14,27 +13,25 @@ class HomeControllerTest extends WebTestCase
     use FixturesTrait;
     
     private $client;
-    
+
     public function setUp()
     {
-        $this->client = static::createClient(); 
+        $this->client = static::createClient();
+        $userRepository = self::$container->get(UserRepository::class);
+        $this->user = $userRepository->findOneBy(['email' => 'user@demo.com']);
+        $this->admin = $userRepository->findOneBy(['email' => 'admin@demo.com']);
+        $this->loadFixtures([UserFixtures::class]);
     }
 
     public function testRedirectToLogin()
     {
-        
         $crawler = $this->client->request('GET', '/');
         $this->assertResponseRedirects('/login');
     }
 
     public function testAuthenticatedUserAccessHome()
     {
-        
-        $users = $this->loadFixtures([UserFixtures::class]);
-        $user = self::$container->get(UserRepository::class)->findOneBy([
-            'email' => 'user@demo.com'
-        ]);
-        $this->client->loginUser($user);
+        $this->client->loginUser($this->user);
         $crawler = $this->client->request('GET', '/');
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         $this->assertSelectorNotExists('#admin_navbar');
@@ -42,12 +39,7 @@ class HomeControllerTest extends WebTestCase
 
     public function testAdminHasAdminNavbar()
     {
-        
-        $users = $this->loadFixtures([UserFixtures::class]);
-        $user = self::$container->get(UserRepository::class)->findOneBy([
-            'email' => 'admin@demo.com'
-        ]);
-        $this->client->loginUser($user);
+        $this->client->loginUser($this->admin);
         $crawler = $this->client->request('GET', '/');
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         $this->assertSelectorExists('#admin_navbar');
