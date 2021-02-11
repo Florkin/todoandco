@@ -11,14 +11,12 @@ class SecurityControllerTest extends WebTestCase
 {
     use FixturesTrait;
 
-    public function testDisplayLogin()
+    public function testDisplayLoginWhenNotLoggedIn()
     {
         $client = static::createClient();
         $client->request('GET', '/login');
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         $this->assertSelectorTextContains('h1', 'Connectez vous');
-        $this->assertSelectorNotExists('.alert.alert-danger');
-
     }
 
     public function testLoginWithBadCredentials()

@@ -56,23 +56,6 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/admin/users/new", name="user_new")
-     * @param Request $request
-     * @param UserFormHandler $formHandler
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
-     */
-    public function new(Request $request, UserFormHandler $formHandler)
-    {
-        $user = new User;
-        if ($formHandler->handle($request, $user,UserType::class)) {
-            $this->addFlash('success', "L'utilisateur a bien été ajouté");
-            return $this->redirectToRoute('user_index');
-        }
-
-        return $this->render('user/new.html.twig', ['form' => $formHandler->createView(), 'user' => $user]);
-    }
-
-    /**
      * @Route("users/{id}/edit", name="user_edit")
      * @param User $user
      * @param Request $request
