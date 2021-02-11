@@ -54,7 +54,7 @@ class TaskRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('a');
         $qb
-            ->where($qb->expr()->not($qb->expr()->eq('a.'.$field, '?1')))
+            ->where($qb->expr()->not($qb->expr()->eq('a.' . $field, '?1')))
             ->setMaxResults(1)
             ->setParameter(1, $value);
 
@@ -64,12 +64,14 @@ class TaskRepository extends ServiceEntityRepository
 
     private function addOptions($options, $query)
     {
-        if (null !== $options) {
-            foreach ($options as $key => $value) {
-                if (null !== $value) {
-                    $query->andWhere('t.' . $key . ' = ' . $value);
-                }
+        if (null === $options) {
+            return;
+        }
+        foreach ($options as $key => $value) {
+            if (null !== $value) {
+                $query->andWhere('t.' . $key . ' = ' . $value);
             }
         }
     }
+
 }
