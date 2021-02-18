@@ -34,11 +34,8 @@ Suivez ce processus afin de proposer une `pull request` qui respecte les bonnes 
     ```
 2. Si vous avez cloné le projet il y a quelques temps, pensez à récupérer les dernières modifications depuis `upstream`:
     ```
-    git checkout production
-    git pull upstream production
-    
-    git checkout develop
-    git pull upstream develop
+    git checkout master
+    git pull upstream master
     ``` 
 3. Créez une nouvelle branche qui contiendra votre fonctionnalité, modification ou correction :
     * Pour une nouvelle fonctionnalité ou modification :
