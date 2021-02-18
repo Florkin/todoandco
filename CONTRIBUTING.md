@@ -29,8 +29,8 @@ Suivez ce processus afin de proposer une `pull request` qui respecte les bonnes 
 1. [Fork](http://help.github.com/fork-a-repo/) le projet, clonez votre `fork` et configurez les `remotes`:
     ```
     git clone https://github.com/<your-username>/<repo-name>
-    cd iletaitunefoisundev
-    git remote add upstream https://github.com/TBoileau/iletaitunefoisundev
+    cd todoandco
+    git remote add upstream https://github.com/Florkin/todoandco
     ```
 2. Si vous avez cloné le projet il y a quelques temps, pensez à récupérer les dernières modifications depuis `upstream`:
     ```
