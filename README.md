@@ -12,8 +12,12 @@ Openclassrooms, cursus PHP/symfony
 - Configurer l'accès à mysql dans .env ou .env.local
 - Créer la base de donnée : `php bin/console doctrine:database:create`  
   puis `php bin/console doctrine:schema:update --force`
-- Installer les datafixtures si besoin : `php bin/console doctrine:fixtures:load`
-  
+- Installer les datafixtures si besoin : `php bin/console doctrine:fixtures:load`  
+```
+Identifiants de demo :
+"admin@demo.com"  mp: "demodemo"
+"user@demo.com"  mp: "demodemo"
+``` 
 
 - Pour les tests, utilisez l'extension php sqlite ou configurez votre base de donnée de test dans .env.test
 - Pour executer les tests : `php bin/phpunit`
