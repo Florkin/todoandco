@@ -21,3 +21,6 @@ Identifiants de demo :
 
 - Pour les tests, utilisez l'extension php sqlite ou configurez votre base de donnée de test dans .env.test
 - Pour executer les tests : `php bin/phpunit`
+
+## Contribuer
+Veuillez prendre un moment pour lire le [guide sur la contribution](https://github.com/Florkin/todoandco/blob/master/CONTRIBUTING.md).
