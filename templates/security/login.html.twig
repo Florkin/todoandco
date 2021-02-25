@@ -2,6 +2,10 @@
 
 {% block title %}Log in!{% endblock %}
 
+{% block hero_section %}
+	{% include 'components/hero_section.html.twig' %}
+{% endblock %}
+
 {% block body %}
 	<form method="post">
 		{% if error %}
