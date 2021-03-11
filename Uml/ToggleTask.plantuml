@@ -1,0 +1,14 @@
+@startuml
+Client -> App : [XmlHttpRequest] toggle done/todo
+App -> App : Check permissions
+
+alt permission denied
+    App --> Client : [HTTP::403] Forbidden
+else permission granted
+    App -> MySQL : UPDATE Query
+    MySQL -> MySQL : ProcessQuery
+    MySQL --> App : response
+    App --> Client : [HTTP::200] Success
+    Client -> Client : Modify DOM
+end
+@enduml
