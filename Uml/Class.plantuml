@@ -1,0 +1,20 @@
+@startuml
+class Task {
+    createdAt : Datetime
+    title : String
+    content :  String
+    done : Boolean
+    user : User
+}
+
+class User {
+    email : String
+    roles : Array
+    password : String
+    username : String
+    tasks : TaskCollection
+}
+
+Task "*" -- "1" User
+
+@enduml
